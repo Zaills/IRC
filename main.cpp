@@ -6,12 +6,15 @@
 /*   By: rvinour <rvinour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/11/27 11:45:20 by rvinour          ###   ########.fr       */
+/*   Updated: 2023/11/27 16:04:22 by rvinour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // Server side C/C++ program to demonstrate Socket
 // programming
+#include <algorithm>
+#include <cstring>
+#include <iostream>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,10 +24,10 @@
 #include <unistd.h>
 #define PORT 8080
 
-int main(int argc, char const* argv[])
+int main(void)
 {
 	int server_fd, new_socket;
-	ssize_t valread;
+	ssize_t valread = 0;
 	struct sockaddr_in address;
 	int opt = 1;
 	socklen_t addrlen = sizeof(address);
@@ -62,10 +65,12 @@ int main(int argc, char const* argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	valread = read(new_socket, buffer, 1024 - 1);
-	printf("%s\n", buffer);
-	send(new_socket, hello.c_str(), hello.size(), 0);
-	printf("Hello message sent\n");
+	//send(new_socket, hello.c_str(), hello.size(), 0);
+	while(valread != 1){
+		valread = read(new_socket, buffer, 1024 - 1);
+		std::cout << buffer << " " << valread << std::endl << std::endl;
+		buffer[0] = 0;
+	}
 
 	close(new_socket);
 	close(server_fd);
