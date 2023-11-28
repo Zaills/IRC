@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rvinour <rvinour@student.42.fr>            +#+  +:+       +#+         #
+#    By: marvin <marvin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/27 14:42:21 by rvinour           #+#    #+#              #
-#    Updated: 2023/11/27 14:42:51 by rvinour          ###   ########.fr        #
+#    Updated: 2023/11/28 17:50:00 by marvin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,9 +14,10 @@ CXX = c++
 
 CXXFLAG = -Wall -Werror -Wextra -std=c++98
 
-NAME = IRC
+NAME = ircserv
 
-SRC = main.cpp
+SRC = main.cpp \
+		Socket.cpp
 
 OBJ = $(SRC:.cpp=.o)
 
