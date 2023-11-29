@@ -3,19 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: nmorandi <nmorandi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/11/28 18:05:45 by marvin           ###   ########.fr       */
+/*   Updated: 2023/11/29 16:07:48 by nmorandi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // Server side C/C++ program to demonstrate Socket
 // programming
 #include "Socket.hpp"
+#include "Server.hpp"
 
 int main(void)
 {
+	Server serv;
+
 	ssize_t valread = 0;
 
 	Socket Sck;
@@ -40,6 +43,7 @@ int main(void)
 	//send(new_socket, hello.c_str(), hello.size(), 0);
 	while(valread != 1){
 		valread = read(new_socket, buffer, 1024 - 1);
+		serv.store_msgs(new_socket,buffer);
 		std::cout << buffer << " " << valread << std::endl << std::endl;
 		for (long i = 0; i < valread && i < 1024; i++)
 			buffer[i] = 0;
