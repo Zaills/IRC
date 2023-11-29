@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server()
+Server::Server(int ports, std::string password) : _password(password),  _ports(ports)
 {
 	std::cout << "Server created\n";
 }
@@ -13,13 +13,13 @@ Server::~Server()
 void Server::store_msgs(int socket, char *buf) //ctrl+d 2 fois de suite casse tout
 {
 	std::string temp = buf;
-	if (!this->map.count(socket))
-		this->map.insert(std::pair<int,std::string>(socket,temp));
+	if (!this->_map.count(socket))
+		this->_map.insert(std::pair<int,std::string>(socket,temp));
 	else
-		this->map.insert(std::pair<int,std::string>(socket, this->map.at(socket).append(temp)));
+		this->_map.insert(std::pair<int,std::string>(socket, this->_map.at(socket).append(temp)));
 	if (temp.find("\n",0) == temp.size()-1)
 	{
-		std::cout << this->map.at(socket);
-		this->map.erase(socket);
+		std::cout << this->_map.at(socket);
+		this->_map.erase(socket);
 	}
 }
