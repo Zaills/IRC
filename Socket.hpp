@@ -31,11 +31,11 @@
 class Socket{
 
 private:
-	struct sockaddr_in address;
-	socklen_t	addrlen;
-	int			server_fd;
-	int 		opt;
-	int			socket_client;
+	struct sockaddr_in	address;
+	socklen_t			addrlen;
+	std::list<int>		socket_client;
+	int					server_fd;
+	int 				opt;
 
 	Socket(const Socket&);
 	Socket operator=(const Socket&);
@@ -43,6 +43,8 @@ private:
 public:
 	Socket();
 	~Socket();
+
+	void		run();
 
 	int			get_server_fd();
 	sockaddr_in	get_address();
