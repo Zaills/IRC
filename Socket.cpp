@@ -29,20 +29,16 @@ Socket::Socket(){
 }
 
  Socket::~Socket(){
-	// for(i = 0; i <= max_fd; ++i){
-	// 	if(FD_ISSET(i, &master_set))
-	// 		close(i);
-	// }
-
-	// if (this->server_fd)
-	// 	close(this->server_fd);
-	// std::for_each(this->socket_client.begin(), this->socket_client.end(), close);
+	for(int i = 0; i <= this->max_fd; ++i){
+		if(FD_ISSET(i, &this->master_set))
+			close(i);
+	}
 }
 
 void Socket::run(){
 	char	buffer[1024] = {0};
-	int		max_fd, new_sd;
-	fd_set	master_set, working_set;
+	int		new_sd;
+	fd_set	working_set;
 
 	if (listen(this->server_fd, 32) < 0) {
 		perror("listen");
@@ -50,9 +46,9 @@ void Socket::run(){
 	}
 
 	//init master fd
-	FD_ZERO(&master_set);
-	max_fd = this->server_fd;
-	FD_SET(this->server_fd, &master_set);
+	FD_ZERO(&this->master_set);
+	this->max_fd = this->server_fd;
+	FD_SET(this->server_fd, &this->master_set);
 
 	//time before stop select
 	timeval	timeout;
@@ -63,11 +59,11 @@ void Socket::run(){
 	int	desc_r, stop = false;
 	do {
 		//seting the fd I want to read
-		memcpy(&working_set, &master_set, sizeof(master_set));
+		memcpy(&working_set, &this->master_set, sizeof(this->master_set));
 
 		//select on working_set
-		std::cout << "Waiting on select..." << std::endl;
-		rc = select(max_fd + 1, &working_set, NULL, NULL, &timeout);
+		std::cout << std::endl << "Waiting on select..." << std::endl;
+		rc = select(this->max_fd + 1, &working_set, NULL, NULL, &timeout);
 		if (rc < 0) {
 			perror("select");
 			break;
@@ -79,7 +75,7 @@ void Socket::run(){
 
 		//looking witch fd we need to read
 		desc_r = rc;
-		for (int i = 0; i <= max_fd && desc_r > 0; ++i) {
+		for (int i = 0; i <= this->max_fd && desc_r > 0; ++i) {
 			if (FD_ISSET(i, &working_set)) {
 				desc_r -=1;
 
@@ -92,9 +88,9 @@ void Socket::run(){
 							break;
 						}
 						std::cout << "New connection: " << new_sd << std::endl;
-						FD_SET(new_sd, &master_set);
-						if (new_sd > max_fd)
-							max_fd = new_sd;
+						FD_SET(new_sd, &this->master_set);
+						if (new_sd > this->max_fd)
+							this->max_fd = new_sd;
 				}
 
 				//if not then it's readable
@@ -122,21 +118,16 @@ void Socket::run(){
 					//if flag close_conn we need to clean up
 					if (close_conn){
 						close(i);
-						FD_CLR(i, &master_set);
-						if (i == max_fd){
-							while (FD_ISSET(max_fd, &master_set) == false)
-								max_fd -= 1;
+						FD_CLR(i, &this->master_set);
+						if (i == this->max_fd){
+							while (FD_ISSET(this->max_fd, &this->master_set) == false)
+								this->max_fd -= 1;
 						}
 					}
 				} // end of readable
 			} // end of if FD_SET
 		} // end of loop
 	}while (stop == false);
-
-	for(int i = 0; i <= max_fd; ++i){
-		if(FD_ISSET(i, &master_set))
-			close(i);
-	}
 }
 
 int Socket::get_server_fd(){

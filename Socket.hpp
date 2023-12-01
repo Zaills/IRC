@@ -35,7 +35,9 @@ private:
 	struct sockaddr_in	address;
 	socklen_t			addrlen;
 	int					server_fd;
-	int 				opt;
+	int					opt;
+	int					max_fd;
+	fd_set				master_set;
 
 	Socket(const Socket&);
 	Socket operator=(const Socket&);
