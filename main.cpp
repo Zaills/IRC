@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rvinour <rvinour@student.42.fr>            +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/11/29 14:22:17 by rvinour          ###   ########.fr       */
+/*   Updated: 2023/12/01 13:42:59 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,9 @@
 
 int main(void)
 {
-	ssize_t valread = 0;
-
 	Socket Sck;
+
+	/*ssize_t valread = 0;
 	int server_fd = Sck.get_server_fd();
 	struct sockaddr_in address = Sck.get_address();
 	socklen_t addrlen = Sck.get_addrlen();
@@ -59,6 +59,8 @@ int main(void)
 	}
 
 	if (s2)
-		close(s2);
+		close(s2);*/
+
+	Sck.run();
 	return 0;
 }

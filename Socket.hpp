@@ -21,19 +21,20 @@
 # include <stdlib.h>
 # include <string.h>
 # include <string>
+# include <sys/select.h>
 # include <sys/socket.h>
+# include <sys/types.h>
 # include <unistd.h>
 # define PORT 8080
 
 # include <exception>
-# include <list>
+# include <cerrno>
 
 class Socket{
 
 private:
 	struct sockaddr_in	address;
 	socklen_t			addrlen;
-	std::list<int>		socket_client;
 	int					server_fd;
 	int 				opt;
 
