@@ -6,13 +6,16 @@
 /*   By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/12/01 17:45:35 by gouz             ###   ########.fr       */
+/*   Updated: 2023/12/01 18:24:39 by gouz             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // Server side C/C++ program to demonstrate Socket
 // programming
 #include "Socket.hpp"
+#include <cstdlib>
+#include <iostream>
+#include <sys/socket.h>
 #include "Server.hpp"
 
 int parse(int ac, char **av)
@@ -28,40 +31,13 @@ int parse(int ac, char **av)
 	return (1);
 }
 
-int main(int ac, char **av)
+int main(void)
 {
-	//if (parse(ac, av) == -1) { exit(EXIT_FAILURE); }
-	//Server serv(atoi(av[1]),std::string(av[2]));
-	Server serv(8080,"oui");
-	ssize_t valread = 0;
-
-	Socket Sck;
-	int server_fd = Sck.get_server_fd();
-	struct sockaddr_in address = Sck.get_address();
-	socklen_t addrlen = Sck.get_addrlen();
-
-
-	if (listen(server_fd, 3) < 0) {
-		perror("listen");
-		exit(EXIT_FAILURE);
+	try {
+		Socket Sck;
+		Sck.run();
+	} catch (std::exception &e) {
+		std::cout << e.what() << std::endl;
 	}
-
-	int new_socket = 0;
-	char buffer[1024] = {0};
-	if ((new_socket = accept(server_fd, (struct sockaddr*)&address, &addrlen)) < 0) {
-		perror("accept");
-		exit(EXIT_FAILURE);
-	}
-	Sck.set_socket_client(new_socket);
-
-	//send(new_socket, hello.c_str(), hello.size(), 0);
-	while(valread != 1){
-		valread = read(new_socket, buffer, 1024 - 1);
-		serv.store_msgs(new_socket,buffer); //need to handle for hexchat
-		std::cout << buffer << " " << valread << std::endl << std::endl;
-		for (long i = 0; i < valread && i < 1024; i++)
-			buffer[i] = 0;
-	}
-
 	return 0;
 }
