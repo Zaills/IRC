@@ -28,9 +28,115 @@ Socket::Socket(){
 		throw std::runtime_error("bind");
 }
 
-Socket::~Socket(){
-	close(this->socket_client);
-	close(this->server_fd);
+ Socket::~Socket(){
+	// for(i = 0; i <= max_fd; ++i){
+	// 	if(FD_ISSET(i, &master_set))
+	// 		close(i);
+	// }
+
+	// if (this->server_fd)
+	// 	close(this->server_fd);
+	// std::for_each(this->socket_client.begin(), this->socket_client.end(), close);
+}
+
+void Socket::run(){
+	char	buffer[1024] = {0};
+	int		max_fd, new_sd;
+	fd_set	master_set, working_set;
+
+	if (listen(this->server_fd, 32) < 0) {
+		perror("listen");
+		exit(EXIT_FAILURE);
+	}
+
+	//init master fd
+	FD_ZERO(&master_set);
+	max_fd = this->server_fd;
+	FD_SET(this->server_fd, &master_set);
+
+	//time before stop select
+	timeval	timeout;
+	timeout.tv_sec = 60;
+	timeout.tv_usec = 0;
+
+	int	rc, len, close_conn;
+	int	desc_r, stop = false;
+	do {
+		//seting the fd I want to read
+		memcpy(&working_set, &master_set, sizeof(master_set));
+
+		//select on working_set
+		std::cout << "Waiting on select..." << std::endl;
+		rc = select(max_fd + 1, &working_set, NULL, NULL, &timeout);
+		if (rc < 0) {
+			perror("select");
+			break;
+		}
+		if (rc == 0){
+			std::cout << "Select timed out." << std::endl;
+			break;
+		}
+
+		//looking witch fd we need to read
+		desc_r = rc;
+		for (int i = 0; i <= max_fd && desc_r > 0; ++i) {
+			if (FD_ISSET(i, &working_set)) {
+				desc_r -=1;
+
+				//if it's the server fd -> new connection
+				if (i == this->server_fd) {
+					std::cout << "Server Socket is readable" << std::endl;
+						if ((new_sd = accept(this->server_fd, NULL, NULL)) < 0) {
+							perror("accept");
+							stop = true;
+							break;
+						}
+						std::cout << "New connection: " << new_sd << std::endl;
+						FD_SET(new_sd, &master_set);
+						if (new_sd > max_fd)
+							max_fd = new_sd;
+				}
+
+				//if not then it's readable
+				else {
+					std::cout << "Socket is readable" << std::endl;
+					close_conn = false;
+					if ((rc = recv(i, buffer, sizeof(buffer), 0)) < 0){
+						perror("recv");
+						close_conn = true;
+					}
+					if (rc == 0){ //retire de struct
+						std::cout << "Connection ended" << std::endl;
+						close_conn = true;
+					}
+					if (!close_conn){
+						//echo back to client
+						len = rc;
+						std::cout << "recieved: " << len << std::endl;
+						if ((rc = send(i, buffer, len, 0)) < 0){
+							perror("send");
+							close_conn = true;
+						}
+					}
+
+					//if flag close_conn we need to clean up
+					if (close_conn){
+						close(i);
+						FD_CLR(i, &master_set);
+						if (i == max_fd){
+							while (FD_ISSET(max_fd, &master_set) == false)
+								max_fd -= 1;
+						}
+					}
+				} // end of readable
+			} // end of if FD_SET
+		} // end of loop
+	}while (stop == false);
+
+	for(int i = 0; i <= max_fd; ++i){
+		if(FD_ISSET(i, &master_set))
+			close(i);
+	}
 }
 
 int Socket::get_server_fd(){
@@ -43,13 +149,5 @@ sockaddr_in Socket::get_address(){
 
 socklen_t Socket::get_addrlen(){
 	return this->addrlen;
-}
-
-int Socket::get_socket_client(){
-	return this->socket_client;
-}
-
-void Socket::set_socket_client(int sc){
-	this->socket_client = sc;
 }
 

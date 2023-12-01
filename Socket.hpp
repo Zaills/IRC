@@ -21,21 +21,21 @@
 # include <stdlib.h>
 # include <string.h>
 # include <string>
+# include <sys/select.h>
 # include <sys/socket.h>
+# include <sys/types.h>
 # include <unistd.h>
 # define PORT 8080
 
 # include <exception>
-# include <list>
 
 class Socket{
 
 private:
-	struct sockaddr_in address;
-	socklen_t	addrlen;
-	int			server_fd;
-	int 		opt;
-	int			socket_client;
+	struct sockaddr_in	address;
+	socklen_t			addrlen;
+	int					server_fd;
+	int 				opt;
 
 	Socket(const Socket&);
 	Socket operator=(const Socket&);
@@ -43,6 +43,8 @@ private:
 public:
 	Socket();
 	~Socket();
+
+	void		run();
 
 	int			get_server_fd();
 	sockaddr_in	get_address();
