@@ -9,7 +9,7 @@ public:
 private:
 	Server(const Server&);
 	Server operator=(const Server&);
-	std::map<int, std::string> _map;
+	std::map<int, std::string> _client_msgs;
 	std::string _password;
 	int _ports;
 };

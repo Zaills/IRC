@@ -13,13 +13,13 @@ Server::~Server()
 void Server::store_msgs(int socket, char *buf) //ctrl+d 2 fois de suite casse tout
 {
 	std::string temp = buf;
-	if (!this->_map.count(socket))
-		this->_map.insert(std::pair<int,std::string>(socket,temp));
+	if (!this->_client_msgs.count(socket))
+		this->_client_msgs.insert(std::pair<int,std::string>(socket,temp));
 	else
-		this->_map.insert(std::pair<int,std::string>(socket, this->_map.at(socket).append(temp)));
+		this->_client_msgs.insert(std::pair<int,std::string>(socket, this->_client_msgs.at(socket).append(temp)));
 	if (temp.find("\n",0) == temp.size() - 1)
 	{
-		std::cout << this->_map.at(socket);
-		this->_map.erase(socket);
+		std::cout << this->_client_msgs.at(socket);
+		this->_client_msgs.erase(socket);
 	}
 }
