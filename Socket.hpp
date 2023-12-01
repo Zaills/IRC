@@ -28,7 +28,6 @@
 # define PORT 8080
 
 # include <exception>
-# include <cerrno>
 
 class Socket{
 

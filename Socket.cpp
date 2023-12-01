@@ -55,7 +55,7 @@ void Socket::run(){
 	FD_SET(this->server_fd, &master_set);
 
 	//time before stop select
-	struct	timeval	timeout;
+	timeval	timeout;
 	timeout.tv_sec = 60;
 	timeout.tv_usec = 0;
 
@@ -66,7 +66,6 @@ void Socket::run(){
 		memcpy(&working_set, &master_set, sizeof(master_set));
 
 		//select on working_set
-		std::cout << "max_fd: " << max_fd << std::endl;
 		std::cout << "Waiting on select..." << std::endl;
 		rc = select(max_fd + 1, &working_set, NULL, NULL, &timeout);
 		if (rc < 0) {
@@ -78,56 +77,47 @@ void Socket::run(){
 			break;
 		}
 
-		//loking witch fd we need to read
+		//looking witch fd we need to read
 		desc_r = rc;
-		for (int i = 0; i<=max_fd && desc_r > 0; ++i) {
-
+		for (int i = 0; i <= max_fd && desc_r > 0; ++i) {
 			if (FD_ISSET(i, &working_set)) {
 				desc_r -=1;
 
 				//if it's the server fd -> new connection
 				if (i == this->server_fd) {
 					std::cout << "Server Socket is readable" << std::endl;
-					do {
 						if ((new_sd = accept(this->server_fd, NULL, NULL)) < 0) {
-							if (errno != EWOULDBLOCK) {
-								perror("accept");
-								stop = true;
-							}
+							perror("accept");
+							stop = true;
 							break;
 						}
 						std::cout << "New connection: " << new_sd << std::endl;
 						FD_SET(new_sd, &master_set);
 						if (new_sd > max_fd)
 							max_fd = new_sd;
-					}while (new_sd != -1);
 				}
 
 				//if not then it's readable
 				else {
 					std::cout << "Socket is readable" << std::endl;
 					close_conn = false;
-					do {
-						if ((rc = recv(i, buffer, sizeof(buffer), 0)) < 0){
-							perror("recv");
-							close_conn = true;
-							break;
-						}
-						if (rc == 0){
-							std::cout << "Connection ended" << std::endl;
-							close_conn = true;
-							break;
-						}
-
+					if ((rc = recv(i, buffer, sizeof(buffer), 0)) < 0){
+						perror("recv");
+						close_conn = true;
+					}
+					if (rc == 0){ //retire de struct
+						std::cout << "Connection ended" << std::endl;
+						close_conn = true;
+					}
+					if (!close_conn){
 						//echo back to client
 						len = rc;
 						std::cout << "recieved: " << len << std::endl;
 						if ((rc = send(i, buffer, len, 0)) < 0){
 							perror("send");
 							close_conn = true;
-							break;
 						}
-					}while (true);
+					}
 
 					//if flag close_conn we need to clean up
 					if (close_conn){
@@ -139,7 +129,6 @@ void Socket::run(){
 						}
 					}
 				} // end of readable
-
 			} // end of if FD_SET
 		} // end of loop
 	}while (stop == false);
