@@ -17,7 +17,7 @@ void Server::store_msgs(int socket, char *buf) //ctrl+d 2 fois de suite casse to
 		this->_map.insert(std::pair<int,std::string>(socket,temp));
 	else
 		this->_map.insert(std::pair<int,std::string>(socket, this->_map.at(socket).append(temp)));
-	if (temp.find("\n",0) == temp.size()-1)
+	if (temp.find("\n",0) == temp.size() - 1)
 	{
 		std::cout << this->_map.at(socket);
 		this->_map.erase(socket);
