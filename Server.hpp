@@ -14,6 +14,7 @@ private:
 	std::map<int, client *> _clients;
 	std::string _password;
 	int _ports;
+	int check_input(std::string *str, bool check_user) const;
 	int logClients(int fd);
 public:
 	Server(int ports, std::string password);
