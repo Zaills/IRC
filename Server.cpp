@@ -22,7 +22,7 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 		std::cout << "FINAL MESSAGE IS :"<< this->_client_msgs.at(fd_client);
 		if (logClients(fd_client) == -1)
 			return ;
-		//this->_client_msgs.erase(fd_client);
+		this->_client_msgs.erase(fd_client);
 	}
 	else
 		return ;
