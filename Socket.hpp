@@ -13,7 +13,6 @@
 #ifndef SOCKET_HPP
 # define SOCKET_HPP
 
-# include "Server.hpp"
 # include <algorithm>
 # include <cstring>
 # include <iostream>
@@ -28,7 +27,7 @@
 # include <unistd.h>
 # define PORT 8080
 # include <exception>
-
+# include "Server.hpp"
 
 class Socket{
 

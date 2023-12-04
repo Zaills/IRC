@@ -35,14 +35,20 @@ int Server::logClients(int fd_client)
 	{
 		std::string msgs = this->_client_msgs.at(fd_client);
 		if (ptr.nick.empty() == true && msgs.empty() == false)
-			ptr.nick == msgs;
+		{
+			ptr.nick == msgs.substr(0,msgs.find("\n"));
+			msgs.erase(0,msgs.find("\n"));
+		}
 		else
 		{
 			send(fd_client, "Waiting for nickname :",23,0);
 			return -1;
 		}
 		if (ptr.user.empty() == true && msgs.empty() == false)
-			ptr.user == msgs;
+		{
+			ptr.user == msgs.substr(0,msgs.find("\n"));
+			msgs.erase(0,msgs.find("\n"));
+		}
 		else
 			return -1;
 		if (ptr.user.empty() == false && ptr.nick.empty() == false)
