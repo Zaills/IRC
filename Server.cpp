@@ -70,7 +70,6 @@ int Server::check_input(std::string *msgs, bool check_user) const
 	std::string str = (*msgs);
 	str.erase(str.size()-1);
 	std::map<int, client*>::const_iterator it = this->_clients.begin();
-	std::cout << str;
 	if (check_user == true){
 		while (it != this->_clients.end()){
 			if ((*it).second->user == str){
