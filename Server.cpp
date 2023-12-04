@@ -44,6 +44,8 @@ int Server::logClients(int fd_client)
 		{
 			ptr->user = msgs.substr(msgs.find("\n") + 1,msgs.size() - msgs.find("\n") - 2);
 			std::cout << "USER ADDED :"<< ptr->user << "|\n";
+			send(fd_client, "SUCCESFULLY LOGGED IN\n",23,0);
+			this->_client_msgs.at(fd_client).clear();
 		}
 		else
 			return -1;
@@ -65,3 +67,16 @@ void Server::addClient(int fd_client)
 		send(fd_client, "Waiting for nickname :\n",24,0);
 	}
 }
+
+void Server::delClient(int fd_client)
+{
+	if (this->_clients.count(fd_client))
+	{
+		this->_client_msgs.at(fd_client).clear();
+		delete this->_clients.at(fd_client);
+		this->_clients.erase(fd_client);
+		this->_client_msgs.erase(fd_client);
+	}
+}
+
+

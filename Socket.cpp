@@ -104,6 +104,7 @@ void Socket::run(){
 					}
 					if (rc == 0){ //retire de struct
 						std::cout << "Connection ended" << std::endl;
+						server.delClient(new_sd);
 						close_conn = true;
 					}
 					if (!close_conn){

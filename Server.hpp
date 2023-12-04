@@ -19,5 +19,6 @@ public:
 	Server(int ports, std::string password);
 	void store_msgs(int socket, char *buf);
 	void addClient(int fd_clients);
+	void delClient(int fd_clients);
 	~Server();
 };
