@@ -88,6 +88,7 @@ void Socket::run(){
 							break;
 						}
 						std::cout << "New connection: " << new_sd << std::endl;
+						server.addClient(new_sd); // ajoute le client dans la map<fd, struct>
 						FD_SET(new_sd, &this->master_set);
 						if (new_sd > this->max_fd)
 							this->max_fd = new_sd;
@@ -110,10 +111,10 @@ void Socket::run(){
 						len = rc;
 						std::cout << "recieved: " << len << std::endl;
 						server.store_msgs(new_sd, buffer); //parsing message (for login and commands)
-						if ((rc = send(i, buffer, len, 0)) < 0){
+/* 						if ((rc = send(i, buffer, len, 0)) < 0){  //commented out for login test
 							perror("send");
 							close_conn = true;
-						}
+						} */
 						memset(buffer,'\0',1024); //clearing the buffer msgs
 					}
 
