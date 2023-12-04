@@ -10,10 +10,9 @@ Server::~Server()
 	std::cout << "Server terminated\n";
 }
 
-void Server::store_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse tout
+void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse tout
 {
 	std::string temp = buf;
-	std::cout << "RECEIVED TO SERVER : \n" << buf << std::endl;
 	if (!this->_client_msgs.count(fd_client))
 		this->_client_msgs.insert(std::pair<int,std::string>(fd_client,temp));
 	else
@@ -35,15 +34,23 @@ int Server::logClients(int fd_client)
 		std::string msgs = this->_client_msgs.at(fd_client);
 		if (ptr->nick.empty() == true && msgs.empty() == false)
 		{
-			ptr->nick = msgs.substr(0,msgs.find("\n"));
+			if (msgs[0] == '\n' && msgs.size() == 1)
+			{
+				this->_client_msgs.at(fd_client).clear();
+				return -1;
+			}
+			ptr->nick = msgs.substr(0,msgs.find("\n")); //check for multi name
+			this->_client_msgs.at(fd_client).clear();
 			send(fd_client, "Waiting for username :\n",24,0);
-			std::cout << "NICK ADDED :" << ptr->nick << "|\n";
-
 		}
 		else if (ptr->user.empty() == true && msgs.empty() == false && ptr->nick.empty() == false)
 		{
+			if (msgs[0] == '\n' && msgs.size() == 1)
+			{
+				this->_client_msgs.at(fd_client).clear();
+				return -1;
+			}
 			ptr->user = msgs.substr(msgs.find("\n") + 1,msgs.size() - msgs.find("\n") - 2);
-			std::cout << "USER ADDED :"<< ptr->user << "|\n";
 			send(fd_client, "SUCCESFULLY LOGGED IN\n",23,0);
 			this->_client_msgs.at(fd_client).clear();
 		}

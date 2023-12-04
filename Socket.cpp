@@ -62,14 +62,14 @@ void Socket::run(){
 		memcpy(&working_set, &this->master_set, sizeof(this->master_set));
 
 		//select on working_set
-		std::cout << std::endl << "Waiting on select..." << std::endl;
+		//std::cout << std::endl << "Waiting on select..." << std::endl;
 		rc = select(this->max_fd + 1, &working_set, NULL, NULL, &timeout);
 		if (rc < 0) {
 			perror("select");
 			break;
 		}
 		if (rc == 0){
-			std::cout << "Select timed out." << std::endl;
+			//std::cout << "Select timed out." << std::endl;
 			break;
 		}
 
@@ -81,13 +81,13 @@ void Socket::run(){
 
 				//if it's the server fd -> new connection
 				if (i == this->server_fd) {
-					std::cout << "Server Socket is readable" << std::endl;
+					//std::cout << "Server Socket is readable" << std::endl;
 						if ((new_sd = accept(this->server_fd, NULL, NULL)) < 0) {
 							perror("accept");
 							stop = true;
 							break;
 						}
-						std::cout << "New connection: " << new_sd << std::endl;
+						//std::cout << "New connection: " << new_sd << std::endl;
 						server.addClient(new_sd); // ajoute le client dans la map<fd, struct>
 						FD_SET(new_sd, &this->master_set);
 						if (new_sd > this->max_fd)
@@ -96,14 +96,14 @@ void Socket::run(){
 
 				//if not then it's readable
 				else {
-					std::cout << "Socket is readable" << std::endl;
+					//std::cout << "Socket is readable" << std::endl;
 					close_conn = false;
 					if ((rc = recv(i, buffer, sizeof(buffer), 0)) < 0){
 						perror("recv");
 						close_conn = true;
 					}
 					if (rc == 0){ //retire de struct
-						std::cout << "Connection ended" << std::endl;
+						//std::cout << "Connection ended" << std::endl;
 						server.delClient(new_sd);
 						close_conn = true;
 					}
@@ -111,7 +111,7 @@ void Socket::run(){
 						//echo back to client
 						len = rc;
 						std::cout << "recieved: " << len << std::endl;
-						server.store_msgs(new_sd, buffer); //parsing message (for login and commands)
+						server.get_msgs(new_sd, buffer); //parsing message (for login and commands)
 /* 						if ((rc = send(i, buffer, len, 0)) < 0){  //commented out for login test
 							perror("send");
 							close_conn = true;
