@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Socket.hpp"
+#include "Join.hpp"
 
 Socket::Socket() : server(PORT, std::string("temp")){
 	this->opt = 1;
@@ -44,6 +45,9 @@ void Socket::run(){
 		perror("listen");
 		exit(EXIT_FAILURE);
 	}
+
+		client test = {"nick", "user", 1};
+
 
 	//init master fd
 	FD_ZERO(&this->master_set);
@@ -110,13 +114,15 @@ void Socket::run(){
 					if (!close_conn){
 						//echo back to client
 						len = rc;
-						std::cout << "recieved: " << len << std::endl;
+						(void) len;
+						std::cout << "recieved: " << buffer << std::endl;
 						server.get_msgs(new_sd, buffer); //parsing message (for login and commands)
 /* 						if ((rc = send(i, buffer, len, 0)) < 0){  //commented out for login test
 							perror("send");
 							close_conn = true;
 						} */
 						memset(buffer,'\0',1024); //clearing the buffer msgs
+						cmd_join("a", test, this->get_server());
 					}
 
 					//if flag close_conn we need to clean up
@@ -146,3 +152,6 @@ socklen_t Socket::get_addrlen(){
 	return this->addrlen;
 }
 
+Server	*Socket::get_server(){
+	return &this->server;
+}

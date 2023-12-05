@@ -114,4 +114,10 @@ void Server::delClient(int fd_client)
 	}
 }
 
+std::vector<Chanel *> Server::get_chanel(){
+	return this->_chanels;
+}
 
+void	Server::new_chanel(Chanel *chanel){
+	this->_chanels.push_back(chanel);
+}

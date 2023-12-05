@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Client.hpp"
+#include "Chanel.hpp"
 #include <map>
+#include <vector>
 #include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -13,6 +15,7 @@ private:
 	std::map<int, std::string> _client_msgs;
 	std::map<int, client *> _clients;
 	std::string _password;
+	std::vector<Chanel *> _chanels;
 	int _ports;
 	int check_input(std::string *str, bool check_user) const;
 	int logClients(int fd);
@@ -21,5 +24,7 @@ public:
 	void get_msgs(int socket, char *buf);
 	void addClient(int fd_clients);
 	void delClient(int fd_clients);
+	std::vector<Chanel *> get_chanel();
+	void	new_chanel(Chanel *chanel);
 	~Server();
 };
