@@ -62,14 +62,14 @@ void Socket::run(){
 		memcpy(&working_set, &this->master_set, sizeof(this->master_set));
 
 		//select on working_set
-		//std::cout << std::endl << "Waiting on select..." << std::endl;
+		std::cout << std::endl << "Waiting on select..." << std::endl;
 		rc = select(this->max_fd + 1, &working_set, NULL, NULL, &timeout);
 		if (rc < 0) {
 			perror("select");
 			break;
 		}
 		if (rc == 0){
-			//std::cout << "Select timed out." << std::endl;
+			std::cout << "Select timed out." << std::endl;
 			break;
 		}
 
@@ -81,7 +81,7 @@ void Socket::run(){
 
 				//if it's the server fd -> new connection
 				if (i == this->server_fd) {
-					//std::cout << "Server Socket is readable" << std::endl;
+					std::cout << "Server Socket is readable" << std::endl;
 						if ((new_sd = accept(this->server_fd, NULL, NULL)) < 0) {
 							perror("accept");
 							stop = true;
@@ -96,7 +96,7 @@ void Socket::run(){
 
 				//if not then it's readable
 				else {
-					//std::cout << "Socket is readable" << std::endl;
+					std::cout << "Socket is readable" << std::endl;
 					close_conn = false;
 					if ((rc = recv(i, buffer, sizeof(buffer), 0)) < 0){
 						perror("recv");
