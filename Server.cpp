@@ -56,7 +56,7 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
 	std::string cmd[] = {"NICK", "USER", "PASS", "INVITE", "TOPIC", "MODE", "KICK"}; //check si une cmds
 	int id;
-	while (this->_client_msgs.at(fd_client).empty() == false)
+	while (this->_client_msgs.at(fd_client).empty() == false && this->_client_msgs.at(fd_client).find('\n') != std::string::npos)
 	{
 		id = 999;
 		for (int i = 0; i < 7; i++)
@@ -79,9 +79,9 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 			setPass(fd_client);
 			break;
 		default:
-			this->_client_msgs.at(fd_client).erase(0,this->_client_msgs.at(fd_client).find('\n')+1);
 			break;
 		}
+		std::cout << "HERE\n";
 	}
 }
 
@@ -89,6 +89,11 @@ void Server::setNick(int fd)
 {
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
+	if (ptr->nick.empty() == false)
+	{
+		msgs->clear();
+		return;
+	}
 	ptr->nick = msgs->substr(5, msgs->find('\n')-5);
 	msgs->erase(0, msgs->find('\n')+1);
 	std::cout << "NICK :" << ptr->nick << std::endl;
@@ -99,6 +104,11 @@ void Server::setUser(int fd)
 {
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
+	if (ptr->user.empty() == false)
+	{
+		msgs->clear();
+		return;
+	}
 	ptr->user = msgs->substr(5, msgs->find("*")-8);
 	std::cout << "USER :" << ptr->user << std::endl;
 	msgs->erase(0, msgs->find("\n")+1);
@@ -109,6 +119,11 @@ void Server::setPass(int fd)
 {
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
+	if (ptr->password.empty() == false)
+	{
+		msgs->clear();
+		return;
+	}
 	ptr->password = msgs->substr(5, msgs->find('\n')-5);
 	std::cout << "PASS :" << ptr->password << std::endl;
 	msgs->erase(0, msgs->find('\n')+1);
