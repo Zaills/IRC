@@ -10,26 +10,9 @@ Server::~Server()
 	std::cout << "Server terminated\n";
 }
 
-void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse tout
-{
-	std::string temp = buf;
-	if (!this->_client_msgs.count(fd_client))
-		this->_client_msgs.insert(std::pair<int,std::string>(fd_client,temp));
-	else
-		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
-	if (temp.find("\n",0) == temp.size() - 1) //this is for handling CTRL+D
-	{
-		std::cout << "FINAL MESSAGE IS :"<< this->_client_msgs.at(fd_client);
-		if (logClients(fd_client) == -1)
-			return ;
-		this->_client_msgs.erase(fd_client);
-	}
-	else
-		return ;
-}
-
 int Server::logClients(int fd_client)
 {
+	//std::cout << "CLIENT IS :"<<fd_client << "\n";
 	client *ptr = this->_clients.at(fd_client);
 	if (ptr->is_logged == false)
 	{
@@ -93,6 +76,48 @@ int Server::check_input(std::string *msgs, bool check_user) const
 	return 1;
 }
 
+//		FONCTION PUBLIQUE		//
+
+void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse tout
+{
+	std::string temp = buf;
+	if (temp.size() == 1)
+		return;
+	if (!this->_client_msgs.count(fd_client)) // stock les msgs
+		this->_client_msgs.insert(std::pair<int,std::string>(fd_client,temp));
+	else
+		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
+
+	std::string cmd[] = {"NICK", "USER", "KICK", "INVITE", "TOPIC", "MODE"}; //check si une cmds
+	int id = 999;
+	for (int i = 0; i < 6; i++)
+	{
+		if (this->_client_msgs[fd_client].substr(0,cmd[i].size()) == cmd[i])
+		{
+			std::cout << "cmd find :" << cmd[i] << std::endl;
+			id = i;
+			break;
+		}
+	}
+	if (id != 999) //modifie le buffer selon la cmd (pour recuper les args seulement)
+		this->_client_msgs[fd_client]= &this->_client_msgs[fd_client][cmd[id].size() + 1];
+
+	if (id < 2){
+		if ((id == 1 && this->_clients.at(fd_client)->nick.empty() == true)
+			|| (this->_clients.at(fd_client)->is_logged == true))  // CMD NICK en premier || peut pas se log si deja log
+		{
+			this->_client_msgs.at(fd_client).clear();
+			return ;
+		}
+		std::cout << "FINAL MESSAGE IS :"<< this->_client_msgs.at(fd_client);
+		if (logClients(fd_client) == -1)
+			return ;
+		this->_client_msgs.at(fd_client).clear();
+	}
+	if (this->_clients.at(fd_client)->is_logged == false)
+		this->_client_msgs.at(fd_client).clear();
+}
+
 void Server::addClient(int fd_client)
 {
 	if (!this->_clients.count(fd_client))
@@ -113,5 +138,4 @@ void Server::delClient(int fd_client)
 		this->_client_msgs.erase(fd_client);
 	}
 }
-
 

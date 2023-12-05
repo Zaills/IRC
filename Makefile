@@ -3,16 +3,16 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: nmorandi <nmorandi@student.42.fr>          +#+  +:+       +#+         #
+#    By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/27 14:42:21 by rvinour           #+#    #+#              #
-#    Updated: 2023/11/29 15:34:17 by nmorandi         ###   ########.fr        #
+#    Updated: 2023/12/05 14:36:31 by gouz             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CXX = c++
 
-CXXFLAG = -Wall -Werror -Wextra -std=c++98
+CXXFLAG = -Wall -Werror -Wextra -std=c++98 -g
 
 NAME = ircserv
 
