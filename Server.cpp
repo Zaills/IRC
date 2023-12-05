@@ -101,7 +101,6 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 	}
 	if (id != 999) //modifie le buffer selon la cmd (pour recuper les args seulement)
 		this->_client_msgs[fd_client]= &this->_client_msgs[fd_client][cmd[id].size() + 1];
-
 	if (id < 2){
 		if ((id == 1 && this->_clients.at(fd_client)->nick.empty() == true)
 			|| (this->_clients.at(fd_client)->is_logged == true))  // CMD NICK en premier || peut pas se log si deja log
