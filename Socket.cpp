@@ -12,7 +12,7 @@
 
 #include "Socket.hpp"
 
-Socket::Socket(){
+Socket::Socket() : server(PORT, std::string("temp")){
 	this->opt = 1;
 	this->addrlen = sizeof(address);
 	if ((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -87,7 +87,8 @@ void Socket::run(){
 							stop = true;
 							break;
 						}
-						std::cout << "New connection: " << new_sd << std::endl;
+						//std::cout << "New connection: " << new_sd << std::endl;
+						server.addClient(new_sd); // ajoute le client dans la map<fd, struct>
 						FD_SET(new_sd, &this->master_set);
 						if (new_sd > this->max_fd)
 							this->max_fd = new_sd;
@@ -102,17 +103,20 @@ void Socket::run(){
 						close_conn = true;
 					}
 					if (rc == 0){ //retire de struct
-						std::cout << "Connection ended" << std::endl;
+						//std::cout << "Connection ended" << std::endl;
+						server.delClient(new_sd);
 						close_conn = true;
 					}
 					if (!close_conn){
 						//echo back to client
 						len = rc;
 						std::cout << "recieved: " << len << std::endl;
-						if ((rc = send(i, buffer, len, 0)) < 0){
+						server.get_msgs(new_sd, buffer); //parsing message (for login and commands)
+/* 						if ((rc = send(i, buffer, len, 0)) < 0){  //commented out for login test
 							perror("send");
 							close_conn = true;
-						}
+						} */
+						memset(buffer,'\0',1024); //clearing the buffer msgs
 					}
 
 					//if flag close_conn we need to clean up

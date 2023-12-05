@@ -26,8 +26,8 @@
 # include <sys/types.h>
 # include <unistd.h>
 # define PORT 8080
-
 # include <exception>
+# include "Server.hpp"
 
 class Socket{
 
@@ -38,7 +38,7 @@ private:
 	int					opt;
 	int					max_fd;
 	fd_set				master_set;
-
+	Server				server;
 	Socket(const Socket&);
 	Socket operator=(const Socket&);
 
