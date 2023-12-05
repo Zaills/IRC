@@ -78,6 +78,18 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 		case 2:
 			setPass(fd_client);
 			break;
+		case 3:
+			//INVITE
+			break;
+		case 4:
+			//TOPIC
+			break;
+		case 5:
+			//MODE
+			break;
+		case 6:
+			//KICK
+			break;
 		default:
 			break;
 		}
