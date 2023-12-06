@@ -108,7 +108,7 @@ void Server::setNick(int fd)
 {
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
-	if (ptr->nick.empty() == false)
+	if (ptr->nick.empty() == false  || ptr->password != this->_password)
 	{
 		msgs->clear();
 		return;
@@ -123,7 +123,7 @@ void Server::setUser(int fd)
 {
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
-	if (ptr->user.empty() == false)
+	if (ptr->user.empty() == false || ptr->password != this->_password)
 	{
 		msgs->clear();
 		return;
@@ -143,10 +143,14 @@ void Server::setPass(int fd)
 		msgs->clear();
 		return;
 	}
-	ptr->password = msgs->substr(5, msgs->find('\n')-5);
-	std::cout << "PASS :" << ptr->password << std::endl;
-	msgs->erase(0, msgs->find('\n')+1);
-	LoggedIn(fd);
+	if (msgs->substr(5, msgs->find('\n')-5) == this->_password)
+	{
+		ptr->password = msgs->substr(5, msgs->find('\n')-5);
+		std::cout << "PASS :" << ptr->password << std::endl;
+		msgs->erase(0, msgs->find('\n')+1);
+		LoggedIn(fd);
+	}
+	//else {MSG ERROR}
 }
 
 void Server::LoggedIn(int fd)
@@ -163,6 +167,7 @@ void Server::addClient(int fd_client)
 {
 	if (!this->_clients.count(fd_client))
 	{
+		std::cout << "A CLIENT HAS BEEN ADDED :" << fd_client << "\n";
 		this->_clients.insert(std::pair<int, client*>(fd_client,new client));
 		this->_clients.at(fd_client)->is_logged = false;
 	}
@@ -172,7 +177,7 @@ void Server::delClient(int fd_client)
 {
 	if (this->_clients.count(fd_client))
 	{
-		this->_client_msgs.at(fd_client).clear();
+		std::cout << "A CLIENT HAS BEEN DELETED :" << fd_client << "\n";
 		delete this->_clients.at(fd_client);
 		this->_clients.erase(fd_client);
 		this->_client_msgs.erase(fd_client);
