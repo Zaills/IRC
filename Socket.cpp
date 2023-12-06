@@ -77,7 +77,6 @@ void Socket::run(){
 		for (int i = 0; i <= this->max_fd && desc_r > 0; ++i) {
 			if (FD_ISSET(i, &working_set)) {
 				desc_r -=1;
-
 				//if it's the server fd -> new connection
 				if (i == this->server_fd) {
 					std::cout << "Server Socket is readable" << std::endl;
@@ -92,9 +91,7 @@ void Socket::run(){
 						if (new_sd > this->max_fd)
 							this->max_fd = new_sd;
 				}
-
-				//if not then it's readable
-				else {
+				else { //if not then it's readable
 					std::cout << "Socket is readable" << std::endl;
 					close_conn = false;
 					if ((rc = recv(i, buffer, sizeof(buffer), 0)) < 0){
@@ -103,7 +100,7 @@ void Socket::run(){
 					}
 					if (rc == 0){ //retire de struct
 						//std::cout << "Connection ended" << std::endl;
-						server.delClient(new_sd);
+						server.delClient(i);
 						close_conn = true;
 					}
 					if (!close_conn){
@@ -111,7 +108,7 @@ void Socket::run(){
 						len = rc;
 						(void) len;
 						std::cout << "recieved: " << buffer << std::endl;
-						server.get_msgs(new_sd, buffer); //parsing message (for login and commands)
+						server.get_msgs(i, buffer); //parsing message (for login and commands)
 /* 						if ((rc = send(i, buffer, len, 0)) < 0){  //commented out for login test
 							perror("send");
 							close_conn = true;

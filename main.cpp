@@ -6,7 +6,7 @@
 /*   By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/12/06 14:24:47 by gouz             ###   ########.fr       */
+/*   Updated: 2023/12/06 17:13:21 by gouz             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ void	sig_handling(int sig)
 {
 	(void)sig;
 	std::cout << "\r\r";
-	std::cout << "HELLO LE C\n";
 	stop = true;
 }
 

@@ -10,7 +10,9 @@ Server::~Server()
 	std::cout << "Server terminated correctly\n";
 	std::map<int, client*>::const_iterator it = this->_clients.begin();
 	while (it != this->_clients.end()){
-		if ((*it).second != NULL) { delete (*it).second; }
+		if ((*it).second != NULL) {
+			delete (*it).second;
+		}
 		it++;
 	}
 }
@@ -165,7 +167,7 @@ void Server::LoggedIn(int fd)
 
 void Server::addClient(int fd_client)
 {
-	if (!this->_clients.count(fd_client))
+	if (this->_clients.count(fd_client) == 0)
 	{
 		std::cout << "A CLIENT HAS BEEN ADDED :" << fd_client << "\n";
 		this->_clients.insert(std::pair<int, client*>(fd_client,new client));
@@ -175,12 +177,12 @@ void Server::addClient(int fd_client)
 
 void Server::delClient(int fd_client)
 {
-	if (this->_clients.count(fd_client))
+	if (this->_clients.count(fd_client) == 1)
 	{
 		std::cout << "A CLIENT HAS BEEN DELETED :" << fd_client << "\n";
+		this->_client_msgs.erase(fd_client);
 		delete this->_clients.at(fd_client);
 		this->_clients.erase(fd_client);
-		this->_client_msgs.erase(fd_client);
 	}
 }
 
