@@ -10,56 +10,6 @@ Server::~Server()
 	std::cout << "Server terminated\n";
 }
 
-void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse tout
-{
-	std::string temp = buf;
-	if (!this->_client_msgs.count(fd_client))
-		this->_client_msgs.insert(std::pair<int,std::string>(fd_client,temp));
-	else
-		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
-	if (temp.find("\n",0) == temp.size() - 1) //this is for handling CTRL+D
-	{
-		std::cout << "FINAL MESSAGE IS :"<< this->_client_msgs.at(fd_client);
-		if (logClients(fd_client) == -1)
-			return ;
-		this->_client_msgs.erase(fd_client);
-	}
-	else
-		return ;
-}
-
-int Server::logClients(int fd_client)
-{
-	client *ptr = this->_clients.at(fd_client);
-	if (ptr->is_logged == false)
-	{
-		std::string *msgs = &(this->_client_msgs.at(fd_client));
-		if (ptr->nick.empty() == true && msgs->empty() == false)
-		{
-			if (check_input(msgs, false) == -1)
-				return -1;
-			ptr->nick = msgs->substr(0,msgs->find("\n")); //check for multi name
-			msgs->clear();
-			send(fd_client, "Waiting for username :\n",24,0);
-		}
-		else if (ptr->user.empty() == true && msgs->empty() == false && ptr->nick.empty() == false)
-		{
-			if (check_input(msgs, true) == -1)
-				return -1;
-			ptr->user = msgs->substr(0,msgs->find("\n"));
-			send(fd_client, "SUCCESFULLY LOGGED IN\n",23,0);
-			msgs->clear();
-			ptr->is_logged = true;
-		}
-		else
-			return -1;
-		if (ptr->is_logged == false)
-			return -1;
-	}
-	std::cout << "USER : " << ptr->user << " with nick : " << ptr->nick << " is logged : " << ptr->is_logged << std::endl;
-	return 1;
-}
-
 int Server::check_input(std::string *msgs, bool check_user) const
 {
 	if ((*msgs)[0] == '\n' && msgs->size() == 1)
@@ -93,13 +43,123 @@ int Server::check_input(std::string *msgs, bool check_user) const
 	return 1;
 }
 
+//		FONCTION PUBLIQUE		//
+
+void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse tout
+{
+	std::string temp = buf;
+	if (temp[0] == '\n')
+		return;
+	if (!this->_client_msgs.count(fd_client))
+		this->_client_msgs.insert(std::pair<int,std::string>(fd_client,temp));
+	else
+		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
+	std::cout << "MSG:" << this->_client_msgs[fd_client];
+	std::string cmd[] = {"NICK", "USER", "PASS", "INVITE", "TOPIC", "MODE", "KICK"};
+	int id;
+	while (this->_client_msgs.at(fd_client).empty() == false && this->_client_msgs.at(fd_client).find('\n') != std::string::npos)
+	{
+		id = 999;
+		for (int i = 0; i < 7; i++)
+		{
+			if (this->_client_msgs[fd_client].substr(0,cmd[i].size()) == cmd[i])
+			{
+				id = i;
+				break;
+			}
+		}
+		switch (id)
+		{
+		case 0:
+			setNick(fd_client);
+			break;
+		case 1:
+			setUser(fd_client);
+			break;
+		case 2:
+			setPass(fd_client);
+			break;
+		case 3:
+			//INVITE
+			break;
+		case 4:
+			//TOPIC
+			break;
+		case 5:
+			//MODE
+			break;
+		case 6:
+			//KICK
+			break;
+		default:
+			this->_client_msgs[fd_client].clear();
+			break;
+		}
+		std::cout << "HERE\n";
+	}
+}
+
+void Server::setNick(int fd)
+{
+	client *ptr = this->_clients.at(fd);
+	std::string *msgs = &(this->_client_msgs.at(fd));
+	if (ptr->nick.empty() == false)
+	{
+		msgs->clear();
+		return;
+	}
+	ptr->nick = msgs->substr(5, msgs->find('\n')-5);
+	msgs->erase(0, msgs->find('\n')+1);
+	std::cout << "NICK :" << ptr->nick << std::endl;
+	LoggedIn(fd);
+}
+
+void Server::setUser(int fd)
+{
+	client *ptr = this->_clients.at(fd);
+	std::string *msgs = &(this->_client_msgs.at(fd));
+	if (ptr->user.empty() == false)
+	{
+		msgs->clear();
+		return;
+	}
+	ptr->user = msgs->substr(5, msgs->find("*")-8);
+	std::cout << "USER :" << ptr->user << std::endl;
+	msgs->erase(0, msgs->find("\n")+1);
+	LoggedIn(fd);
+}
+
+void Server::setPass(int fd)
+{
+	client *ptr = this->_clients.at(fd);
+	std::string *msgs = &(this->_client_msgs.at(fd));
+	if (ptr->password.empty() == false)
+	{
+		msgs->clear();
+		return;
+	}
+	ptr->password = msgs->substr(5, msgs->find('\n')-5);
+	std::cout << "PASS :" << ptr->password << std::endl;
+	msgs->erase(0, msgs->find('\n')+1);
+	LoggedIn(fd);
+}
+
+void Server::LoggedIn(int fd)
+{
+	client *ptr = this->_clients.at(fd);
+	if (!ptr->nick.empty() && !ptr->user.empty())
+	{
+		ptr->is_logged = true;
+		std::cout << "A CLIENT HAS BEEN CONNECTED !\n";
+	}
+}
+
 void Server::addClient(int fd_client)
 {
 	if (!this->_clients.count(fd_client))
 	{
 		this->_clients.insert(std::pair<int, client*>(fd_client,new client));
 		this->_clients.at(fd_client)->is_logged = false;
-		send(fd_client, "Waiting for nickname :\n",24,0);
 	}
 }
 
@@ -114,18 +174,4 @@ void Server::delClient(int fd_client)
 	}
 }
 
-std::vector<Chanel *> Server::get_chanel(){
-	return this->_chanels;
-}
 
-void	Server::new_chanel(Chanel *chanel){
-	this->_chanels.push_back(chanel);
-}
-
-int	Server::get_fd(std::string user){
-	for (std::map<int, client*>::const_iterator it = this->_clients.begin(); it != this->_clients.end(); it++){
-		if (it->second->user == user)
-			return it->first;
-	}
-	return 0;
-}
