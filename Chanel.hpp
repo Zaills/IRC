@@ -20,6 +20,7 @@ typedef struct s_chanel{
 
 	std::string	name;
 	std::string	password;
+	std::string	topic;
 	std::vector<std::string>	user;
 	std::vector<std::string>	admin;
 

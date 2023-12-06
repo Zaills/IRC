@@ -6,7 +6,7 @@
 #    By: marvin <marvin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/27 14:42:21 by rvinour           #+#    #+#              #
-#    Updated: 2023/12/06 12:00:51 by marvin           ###   ########.fr        #
+#    Updated: 2023/12/06 14:22:49 by marvin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,9 @@ SRC = main.cpp \
 		Socket.cpp\
 		Server.cpp\
 		Chanel.cpp\
-		Join.cpp
+		cmd/CMD_Utils.cpp\
+		cmd/Join.cpp\
+		cmd/Topic.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

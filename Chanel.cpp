@@ -17,6 +17,7 @@ Chanel	creat_chanel(std::string name, std::string password, std::string admin)
 	Chanel	new_chanel;
 
 	new_chanel.name = name;
+	new_chanel.topic = "";
 	new_chanel.password = password;
 	new_chanel.user_limit = 0;
 	new_chanel.invite = false;
@@ -59,4 +60,3 @@ void	del_invited(Chanel *chanel, std::string invited)
 		}
 	}
 }
-

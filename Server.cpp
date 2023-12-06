@@ -1,4 +1,6 @@
 #include "Server.hpp"
+#include "cmd/CMD.hpp"
+
 
 Server::Server(int ports, std::string password) : _password(password),  _ports(ports)
 {
@@ -55,12 +57,12 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 	else
 		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
 	std::cout << "MSG:" << this->_client_msgs[fd_client];
-	std::string cmd[] = {"NICK", "USER", "PASS", "INVITE", "TOPIC", "MODE", "KICK"};
+	std::string cmd[] = {"NICK", "USER", "PASS", "INVITE", "TOPIC", "MODE", "KICK", "JOIN", "PASS"};
 	int id;
 	while (this->_client_msgs.at(fd_client).empty() == false && this->_client_msgs.at(fd_client).find('\n') != std::string::npos)
 	{
 		id = 999;
-		for (int i = 0; i < 7; i++)
+		for (int i = 0; i <= 7; i++)
 		{
 			if (this->_client_msgs[fd_client].substr(0,cmd[i].size()) == cmd[i])
 			{
@@ -81,21 +83,32 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 			break;
 		case 3:
 			//INVITE
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 4:
 			//TOPIC
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 5:
 			//MODE
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 6:
 			//KICK
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			break;
+		case 7:
+			cmd_join(this->_client_msgs[fd_client].erase(0, cmd[7].size() + 1), this->_clients[fd_client], this);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			break;
+		case 8:
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		default:
 			this->_client_msgs[fd_client].clear();
 			break;
 		}
-		std::cout << "HERE\n";
+		// std::cout << "HERE\n";
 	}
 }
 
@@ -173,9 +186,11 @@ void Server::delClient(int fd_client)
 		this->_client_msgs.erase(fd_client);
 	}
 }
+
 std::vector<Chanel *> Server::get_chanel(){
 	return this->_chanels;
 }
+
 
 void	Server::new_chanel(Chanel *chanel){
 	this->_chanels.push_back(chanel);

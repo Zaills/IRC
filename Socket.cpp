@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "Socket.hpp"
-#include "Join.hpp"
 
 Socket::Socket() : server(PORT, std::string("temp")){
 	this->opt = 1;
