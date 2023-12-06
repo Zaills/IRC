@@ -15,7 +15,10 @@ private:
 	std::string _password;
 	int _ports;
 	int check_input(std::string *str, bool check_user) const;
-	int logClients(int fd);
+	void setNick(int fd);
+	void setUser(int fd);
+	void setPass(int fd);
+	void LoggedIn(int fd);
 public:
 	Server(int ports, std::string password);
 	void get_msgs(int socket, char *buf);

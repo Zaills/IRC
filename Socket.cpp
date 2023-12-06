@@ -52,7 +52,7 @@ void Socket::run(){
 
 	//time before stop select
 	timeval	timeout;
-	timeout.tv_sec = 60;
+	timeout.tv_sec = 800000;
 	timeout.tv_usec = 0;
 
 	int	rc, len, close_conn;
@@ -110,7 +110,8 @@ void Socket::run(){
 					if (!close_conn){
 						//echo back to client
 						len = rc;
-						std::cout << "recieved: " << len << std::endl;
+						(void) len;
+						std::cout << "recieved: " << buffer << std::endl;
 						server.get_msgs(new_sd, buffer); //parsing message (for login and commands)
 /* 						if ((rc = send(i, buffer, len, 0)) < 0){  //commented out for login test
 							perror("send");
