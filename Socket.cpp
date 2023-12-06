@@ -46,9 +46,6 @@ void Socket::run(){
 		exit(EXIT_FAILURE);
 	}
 
-		client test = {"nick", "user", 1};
-
-
 	//init master fd
 	FD_ZERO(&this->master_set);
 	this->max_fd = this->server_fd;
@@ -122,8 +119,6 @@ void Socket::run(){
 							close_conn = true;
 						} */
 						memset(buffer,'\0',1024); //clearing the buffer msgs
-						if (server.get_fd("user"))
-							cmd_join("a", test, this->get_server());
 					}
 
 					//if flag close_conn we need to clean up
