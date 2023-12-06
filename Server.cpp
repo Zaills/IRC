@@ -7,7 +7,12 @@ Server::Server(int ports, std::string password) : _password(password),  _ports(p
 
 Server::~Server()
 {
-	std::cout << "Server terminated\n";
+	std::cout << "Server terminated correctly\n";
+	std::map<int, client*>::const_iterator it = this->_clients.begin();
+	while (it != this->_clients.end()){
+		if ((*it).second != NULL) { delete (*it).second; }
+		it++;
+	}
 }
 
 int Server::check_input(std::string *msgs, bool check_user) const
@@ -23,7 +28,7 @@ int Server::check_input(std::string *msgs, bool check_user) const
 	if (check_user == true){
 		while (it != this->_clients.end()){
 			if ((*it).second->user == str){
-				(*msgs).clear();
+				(*msgs).clear(); // maybe pas mettre ca mais erase sur find(\n);
 				std::cout << "USER ALREADY EXIST\n";
 				return -1;
 			}
@@ -34,7 +39,7 @@ int Server::check_input(std::string *msgs, bool check_user) const
 		while (it != this->_clients.end()){
 			if ((*it).second->nick == str){
 				std::cout << "NICK ALREADY EXIST\n";
-				(*msgs).clear();
+				(*msgs).clear(); // idem ici
 				return -1;
 			}
 			it++;
@@ -45,7 +50,7 @@ int Server::check_input(std::string *msgs, bool check_user) const
 
 //		FONCTION PUBLIQUE		//
 
-void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse tout
+void Server::get_msgs(int fd_client, char *buf)
 {
 	std::string temp = buf;
 	if (temp[0] == '\n')

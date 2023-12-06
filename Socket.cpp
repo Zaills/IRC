@@ -54,9 +54,8 @@ void Socket::run(){
 	timeval	timeout;
 	timeout.tv_sec = 800000;
 	timeout.tv_usec = 0;
-
 	int	rc, len, close_conn;
-	int	desc_r, stop = false;
+	int	desc_r;
 	do {
 		//seting the fd I want to read
 		memcpy(&working_set, &this->master_set, sizeof(this->master_set));

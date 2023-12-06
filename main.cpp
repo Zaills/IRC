@@ -6,7 +6,7 @@
 /*   By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/12/06 14:01:19 by gouz             ###   ########.fr       */
+/*   Updated: 2023/12/06 14:24:47 by gouz             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 #include <sys/socket.h>
 #include "Server.hpp"
 #include <signal.h>
+
+bool stop;
 
 int parse(int ac, char **av)
 {
@@ -35,11 +37,14 @@ int parse(int ac, char **av)
 void	sig_handling(int sig)
 {
 	(void)sig;
+	std::cout << "\r\r";
 	std::cout << "HELLO LE C\n";
+	stop = true;
 }
 
 int main(void)
 {
+	stop = false;
 	signal(SIGINT,sig_handling);
 	try {
 		Socket Sck;
