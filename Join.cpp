@@ -24,7 +24,7 @@ static bool	chanel_exist(std::string chanel_name, std::vector<Chanel *> v_chanel
 	return false;
 }
 
-Chanel	&get_w_chanel(std::string chanel_name, std::vector<Chanel *> v_chanel) {
+static Chanel	&get_w_chanel(std::string chanel_name, std::vector<Chanel *> v_chanel) {
 	for(std::vector<Chanel *>::iterator it = v_chanel.begin(); it != v_chanel.end(); it++){
 		if ((*it)->name == chanel_name)
 			return *(*it);
@@ -32,7 +32,7 @@ Chanel	&get_w_chanel(std::string chanel_name, std::vector<Chanel *> v_chanel) {
 	return *(*v_chanel.end());
 }
 
-bool	already_in_chanel(std::string name, Chanel w_chanel) {
+static bool	already_in_chanel(std::string name, Chanel w_chanel) {
 	for(std::vector<std::string>::iterator it = w_chanel.user.begin(); it != w_chanel.user.end(); it++){
 		if (*it == name)
 			return true;
@@ -42,6 +42,18 @@ bool	already_in_chanel(std::string name, Chanel w_chanel) {
 			return true;
 	}
 	return false;
+}
+
+static void	join_send(client w_client, Server *Server, std::string arg){
+	int fd = Server->get_fd(w_client.user);
+
+	std::string buffer = ": JOIN " + arg + '\n';
+
+	std::cout << "sending : >" + buffer + "< to: >" << fd << std::endl;
+
+	if (send(fd, buffer.c_str(), buffer.size(), 0) < 0){
+		// perror("send");
+	}
 }
 
 void	cmd_join(std::string arg, client w_client, Server *server) {
@@ -57,7 +69,10 @@ void	cmd_join(std::string arg, client w_client, Server *server) {
 			w_chanel.user.push_back(w_client.user);
 			std::cout << "user: " + w_client.user +" joined chanel: "  + w_chanel.name << std::endl;
 		}
-		else
+		else{
 			std::cout << "user: " +  w_client.user +" already in chanel: "  + w_chanel.name << std::endl;
+			return;
+		}
 	}
+	join_send(w_client, server, arg);
 }

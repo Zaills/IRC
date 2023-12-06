@@ -122,7 +122,8 @@ void Socket::run(){
 							close_conn = true;
 						} */
 						memset(buffer,'\0',1024); //clearing the buffer msgs
-						cmd_join("a", test, this->get_server());
+						if (server.get_fd("user"))
+							cmd_join("a", test, this->get_server());
 					}
 
 					//if flag close_conn we need to clean up
