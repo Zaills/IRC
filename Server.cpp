@@ -48,13 +48,14 @@ int Server::check_input(std::string *msgs, bool check_user) const
 void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse tout
 {
 	std::string temp = buf;
-	if (temp.size() == 1)
+	if (temp[0] == '\n')
 		return;
-	if (!this->_client_msgs.count(fd_client)) // stock les msgs
+	if (!this->_client_msgs.count(fd_client))
 		this->_client_msgs.insert(std::pair<int,std::string>(fd_client,temp));
 	else
 		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
-	std::string cmd[] = {"NICK", "USER", "PASS", "INVITE", "TOPIC", "MODE", "KICK"}; //check si une cmds
+	std::cout << "MSG:" << this->_client_msgs[fd_client];
+	std::string cmd[] = {"NICK", "USER", "PASS", "INVITE", "TOPIC", "MODE", "KICK"};
 	int id;
 	while (this->_client_msgs.at(fd_client).empty() == false && this->_client_msgs.at(fd_client).find('\n') != std::string::npos)
 	{
@@ -91,6 +92,7 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 			//KICK
 			break;
 		default:
+			this->_client_msgs[fd_client].clear();
 			break;
 		}
 		std::cout << "HERE\n";

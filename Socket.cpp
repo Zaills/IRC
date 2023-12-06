@@ -52,7 +52,7 @@ void Socket::run(){
 
 	//time before stop select
 	timeval	timeout;
-	timeout.tv_sec = 60;
+	timeout.tv_sec = 800000;
 	timeout.tv_usec = 0;
 
 	int	rc, len, close_conn;
