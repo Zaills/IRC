@@ -55,7 +55,7 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 	else
 		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
 	std::cout << "MSG:" << this->_client_msgs[fd_client];
-	std::string cmd[] = {"NICK", "USER", "PASS", "INVITE", "TOPIC", "MODE", "KICK"};
+	std::string cmd[] = {"NICK ", "USER ", "PASS ", "INVITE ", "TOPIC ", "MODE ", "KICK "};
 	int id;
 	while (this->_client_msgs.at(fd_client).empty() == false && this->_client_msgs.at(fd_client).find('\n') != std::string::npos)
 	{
