@@ -17,37 +17,128 @@ Server::~Server()
 	}
 }
 
-int Server::check_input(std::string *msgs, bool check_user) const
+int Server::check_input(std::string msgs, int fd) const
 {
-	if ((*msgs)[0] == '\n' && msgs->size() == 1)
-	{
-		msgs->clear();
+	if (msgs[0] == '\n' && msgs.size() == 1)
 		return -1;
-	}
-	std::string str = (*msgs);
-	str.erase(str.size()-1);
+	std::string str = &msgs[5];
+	str = str.erase(str.size()-1,str.size());
 	std::map<int, client*>::const_iterator it = this->_clients.begin();
-	if (check_user == true){
-		while (it != this->_clients.end()){
-			if ((*it).second->user == str){
-				(*msgs).clear(); // maybe pas mettre ca mais erase sur find(\n);
-				std::cout << "USER ALREADY EXIST\n";
-				return -1;
-			}
-			it++;
+	while (it != this->_clients.end()){
+		if ((*it).second->nick == str && (*it).first != fd){
+			return -1;
 		}
-	}
-	else{
-		while (it != this->_clients.end()){
-			if ((*it).second->nick == str){
-				std::cout << "NICK ALREADY EXIST\n";
-				(*msgs).clear(); // idem ici
-				return -1;
-			}
-			it++;
-		}
+		it++;
 	}
 	return 1;
+}
+
+int Server::check_empty(std::string msgs) const
+{
+	std::string temp = &msgs[3];
+	if (temp.size() == 1)
+		return -1;
+	temp = &msgs[4];
+	for(size_t i = 0; i < temp.size(); i++)
+	{
+		if (!isspace(temp[i]))
+			return 1;
+	}
+	return -1;
+}
+
+void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
+{
+	client *ptr = this->_clients.at(fd);
+	std::string *msgs = &(this->_client_msgs.at(fd));
+	if (ptr->password != this->_password)
+	{
+		msgs->erase(0, msgs->find('\n')+1);
+		return ;
+	}
+	else if (ptr->nick.empty() == false)
+	{
+		send(fd, "462 ERR_ALREADYREGISTRED :You may not register\n",48,0);
+		msgs->erase(0, msgs->find("\n")+1);
+		return ;
+	}
+	else if (check_input((*msgs), fd) == -1)
+	{
+		std::string test = "433 ERR_NICKNAMEINUSE\n" + ptr->nick + " :Nickname is already in use\n";
+		send(fd, test.c_str(), test.size(),0);
+		msgs->erase(0, msgs->find('\n')+1);
+		return ;
+	}
+	else if (check_empty((*msgs)) == -1)
+	{
+		msgs->erase(0, msgs->find('\n')+1);
+		send(fd, "431 ERR_NONICKNAMEGIVEN\n :No nickname given\n",45,0);
+		return ;
+	}
+/* 	else{
+		for (size_t i = 4; i < msgs->size(); i++)
+			if ((*msgs)[i] > 127 || (*msgs)[i] < 0){ --> compile error data type
+				std::string buf = "432 ERR_ERRONEUSNICKNAME\n" + ptr->nick + " :Erroneus nickname\n";
+				send(fd, buf.c_str(), buf.size(),0);
+				msgs->erase(0, msgs->find('\n')+1);
+				return ;
+			}
+	} */
+	ptr->nick = msgs->substr(5, msgs->find('\n')-5);
+	msgs->erase(0, msgs->find('\n')+1);
+	std::cout << "NICK :" << ptr->nick << std::endl;
+	LoggedIn(fd);
+}
+
+void Server::setUser(int fd)
+{
+	client *ptr = this->_clients.at(fd);
+	std::string *msgs = &(this->_client_msgs.at(fd));
+	if (ptr->password != this->_password)
+		return ;
+	if (ptr->user.empty() == false)
+	{
+		send(fd, "462 ERR_ALREADYREGISTRED :You may not register\n",48,0);
+		msgs->erase(0, msgs->find("\n")+1);
+		return;
+	}
+	else if (check_empty((*msgs)) == -1)
+		send(fd,"461 ERR_NEEDMOREPARAMS\nUSER :Not enough parameters\n",52,0);
+	ptr->user = msgs->substr(5, msgs->find("*")-8);
+	std::cout << "USER :" << ptr->user << std::endl;
+	msgs->erase(0, msgs->find("\n")+1);
+	LoggedIn(fd);
+}
+
+void Server::setPass(int fd)
+{
+	client *ptr = this->_clients.at(fd);
+	std::string *msgs = &(this->_client_msgs.at(fd));
+	if (ptr->password.empty() == false)
+	{
+		send(fd, "462 ERR_ALREADYREGISTRED :You may not reregister\n",48,0);
+		msgs->erase(0, msgs->find('\n')+1);
+		return;
+	}
+	if (msgs->substr(5, msgs->find('\n')-5) == this->_password)
+	{
+		ptr->password = msgs->substr(5, msgs->find('\n')-5);
+		std::cout << "PASS :" << ptr->password << std::endl;
+		LoggedIn(fd);
+	}
+	else if (check_empty((*msgs)) == -1)
+		send(fd,"461 ERR_NEEDMOREPARAMS\nPASS :Not enough parameters\n",52,0);
+	msgs->erase(0, msgs->find('\n')+1);
+}
+
+void Server::LoggedIn(int fd)
+{
+	client *ptr = this->_clients.at(fd);
+	if (!ptr->nick.empty() && !ptr->user.empty())
+	{
+		ptr->is_logged = true;
+		std::cout << "A CLIENT HAS BEEN CONNECTED !\n";
+	}
 }
 
 //		FONCTION PUBLIQUE		//
@@ -99,69 +190,10 @@ void Server::get_msgs(int fd_client, char *buf)
 			//KICK
 			break;
 		default:
-			this->_client_msgs[fd_client].clear();
+			this->_client_msgs[fd_client].erase(0,this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		}
 		std::cout << "HERE\n";
-	}
-}
-
-void Server::setNick(int fd)
-{
-	client *ptr = this->_clients.at(fd);
-	std::string *msgs = &(this->_client_msgs.at(fd));
-	if (ptr->nick.empty() == false  || ptr->password != this->_password)
-	{
-		msgs->clear();
-		return;
-	}
-	ptr->nick = msgs->substr(5, msgs->find('\n')-5);
-	msgs->erase(0, msgs->find('\n')+1);
-	std::cout << "NICK :" << ptr->nick << std::endl;
-	LoggedIn(fd);
-}
-
-void Server::setUser(int fd)
-{
-	client *ptr = this->_clients.at(fd);
-	std::string *msgs = &(this->_client_msgs.at(fd));
-	if (ptr->user.empty() == false || ptr->password != this->_password)
-	{
-		msgs->clear();
-		return;
-	}
-	ptr->user = msgs->substr(5, msgs->find("*")-8);
-	std::cout << "USER :" << ptr->user << std::endl;
-	msgs->erase(0, msgs->find("\n")+1);
-	LoggedIn(fd);
-}
-
-void Server::setPass(int fd)
-{
-	client *ptr = this->_clients.at(fd);
-	std::string *msgs = &(this->_client_msgs.at(fd));
-	if (ptr->password.empty() == false)
-	{
-		msgs->clear();
-		return;
-	}
-	if (msgs->substr(5, msgs->find('\n')-5) == this->_password)
-	{
-		ptr->password = msgs->substr(5, msgs->find('\n')-5);
-		std::cout << "PASS :" << ptr->password << std::endl;
-		msgs->erase(0, msgs->find('\n')+1);
-		LoggedIn(fd);
-	}
-	//else {MSG ERROR}
-}
-
-void Server::LoggedIn(int fd)
-{
-	client *ptr = this->_clients.at(fd);
-	if (!ptr->nick.empty() && !ptr->user.empty())
-	{
-		ptr->is_logged = true;
-		std::cout << "A CLIENT HAS BEEN CONNECTED !\n";
 	}
 }
 
@@ -172,6 +204,7 @@ void Server::addClient(int fd_client)
 		std::cout << "A CLIENT HAS BEEN ADDED :" << fd_client << "\n";
 		this->_clients.insert(std::pair<int, client*>(fd_client,new client));
 		this->_clients.at(fd_client)->is_logged = false;
+		this->_clients.at(fd_client)->fd = fd_client;
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/12/06 17:13:21 by gouz             ###   ########.fr       */
+/*   Updated: 2023/12/07 12:06:08 by gouz             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int parse(int ac, char **av)
 void	sig_handling(int sig)
 {
 	(void)sig;
-	std::cout << "\r\r";
+	std::cout << "\b\bCONTROL+C HANDLED\n";
 	stop = true;
 }
 
