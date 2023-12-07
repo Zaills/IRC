@@ -6,7 +6,7 @@
 /*   By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/12/07 12:06:08 by gouz             ###   ########.fr       */
+/*   Updated: 2023/12/07 17:01:53 by gouz             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	sig_handling(int sig)
 int main(void)
 {
 	stop = false;
-	signal(SIGINT,sig_handling);
+	//signal(SIGINT,sig_handling);
 	try {
 		Socket Sck;
 		Sck.run();

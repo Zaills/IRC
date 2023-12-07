@@ -124,18 +124,16 @@ void Server::setPass(int fd)
 	if (ptr->password.empty() == false)
 	{
 		send(fd, "462 ERR_ALREADYREGISTRED :You may not reregister\n",48,0);
-
-		std::cout << "I WAS HEReeeeeeeeeeeeeeeeeeeeE"<< std::endl;
 		msgs->erase(0, msgs->find('\n')+1);
 		return;
 	}
 	if (check_empty((*msgs)) == -1)
 	{
-		std::cout << "I WAS HERE"<< std::endl;
 		send(fd,"461 ERR_NEEDMOREPARAMS\nPASS :Not enough parameters\n",52,0);
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
+	std::cout << msgs->substr(5, msgs->find('\n')-6) << " == " << this->_password << "\n";
 	if (msgs->substr(5, msgs->find('\n')-6) == this->_password)
 	{
 		ptr->password = msgs->substr(5, msgs->find('\n')-6);
