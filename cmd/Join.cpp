@@ -32,13 +32,19 @@ static bool	already_in_chanel(std::string name, Chanel w_chanel) {
 	return false;
 }
 
-static std::string get_user(Chanel w_chanel){
+static std::string get_user(Chanel w_chanel, std::string user, Server *server){
 	std::string out;
+	std::string buffer;
 	for (std::vector<std::string>::iterator it = w_chanel.user.begin(); it != w_chanel.user.end(); it++){
 		out += get_only_name(*it) + " ";
+		buffer = ":" + user + " JOIN :" + w_chanel.name + "\n";
+		send(server->get_fd(get_only_name(*it)), buffer.c_str(), buffer.size(), 0);
 	}
 	for (std::vector<std::string>::iterator it = w_chanel.admin.begin(); it != w_chanel.admin.end(); it++){
 		out += "@" + get_only_name(*it) + " ";
+		buffer = ":" + user + " JOIN :" + w_chanel.name + "\n";
+		std::cout << "HEEEEEERE " + get_only_name(*it) << std::endl;
+		send(server->get_fd(get_only_name(*it)), buffer.c_str(), buffer.size(), 0);
 	}
 	return out;
 }
@@ -54,7 +60,7 @@ static void	join_send_first(int fd, std::string arg, client *w_client){
 	send(fd, buffer.c_str(), buffer.size(), 0);
 }
 
-static void join_send(int fd, std::string arg, client *w_client, Chanel w_chanel){
+static void join_send(int fd, std::string arg, client *w_client, Chanel w_chanel, Server *server){
 	std::string buffer = ":" + get_only_name(w_client->nick)+ " JOIN " + arg + '\n';
 	send(fd, buffer.c_str(), buffer.size(), 0);
 
@@ -62,7 +68,7 @@ static void join_send(int fd, std::string arg, client *w_client, Chanel w_chanel
 	send(fd, buffer.c_str(), buffer.size(), 0);
 
 	//get names list
-	buffer = ": 353 " + get_only_name(w_client->nick) + " = " + arg + " :" + get_user(w_chanel) + "\n";
+	buffer = ": 353 " + get_only_name(w_client->nick) + " = " + arg + " :" + get_user(w_chanel, get_only_name(w_client->nick), server) + "\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
 	buffer = ": 366 " + get_only_name(w_client->nick) + " " + arg + " :End of /NAMES list\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
@@ -82,7 +88,7 @@ void	cmd_join(std::string arg, client * w_client, Server *server) {
 		if (!already_in_chanel(w_client->user, w_chanel)) {
 			w_chanel.user.push_back(w_client->user);
 			std::cout << "user: " + w_client->user +" joined chanel: "  + w_chanel.name << std::endl;
-			join_send(server->get_fd(w_client->user), get_only_name(arg), w_client, w_chanel);
+			join_send(server->get_fd(w_client->user), get_only_name(arg), w_client, w_chanel, server);
 		}
 		else{
 			std::cout << "user: " +  w_client->user +" already in chanel: "  + w_chanel.name << std::endl;
