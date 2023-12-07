@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "Socket.hpp"
 
 Server::Server(int ports, std::string password) : _password(password),  _ports(ports)
 {
@@ -64,8 +65,8 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 	}
 	else if (check_input((*msgs), fd) == -1)
 	{
-		std::string test = "433 ERR_NICKNAMEINUSE\n" + ptr->nick + " :Nickname is already in use\n";
-		send(fd, test.c_str(), test.size(),0);
+		std::string buf = "433 ERR_NICKNAMEINUSE\n" + ptr->nick + " :Nickname is already in use\n";
+		send(fd, buf.c_str(), buf.size(),0);
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
@@ -92,10 +93,14 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 
 void Server::setUser(int fd)
 {
+
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
 	if (ptr->password != this->_password)
+	{
+		//std::cout << ptr->password << " == " << this->_password << "\n";
 		return ;
+	}
 	if (ptr->user.empty() == false)
 	{
 		send(fd, "462 ERR_ALREADYREGISTRED :You may not register\n",48,0);
@@ -103,7 +108,9 @@ void Server::setUser(int fd)
 		return;
 	}
 	else if (check_empty((*msgs)) == -1)
+	{
 		send(fd,"461 ERR_NEEDMOREPARAMS\nUSER :Not enough parameters\n",52,0);
+	}
 	ptr->user = msgs->substr(5, msgs->find("*")-8);
 	std::cout << "USER :" << ptr->user << std::endl;
 	msgs->erase(0, msgs->find("\n")+1);
@@ -117,18 +124,25 @@ void Server::setPass(int fd)
 	if (ptr->password.empty() == false)
 	{
 		send(fd, "462 ERR_ALREADYREGISTRED :You may not reregister\n",48,0);
+
+		std::cout << "I WAS HEReeeeeeeeeeeeeeeeeeeeE"<< std::endl;
 		msgs->erase(0, msgs->find('\n')+1);
 		return;
 	}
-	if (msgs->substr(5, msgs->find('\n')-5) == this->_password)
+	if (check_empty((*msgs)) == -1)
 	{
-		ptr->password = msgs->substr(5, msgs->find('\n')-5);
+		std::cout << "I WAS HERE"<< std::endl;
+		send(fd,"461 ERR_NEEDMOREPARAMS\nPASS :Not enough parameters\n",52,0);
+		msgs->erase(0, msgs->find('\n')+1);
+		return ;
+	}
+	if (msgs->substr(5, msgs->find('\n')-6) == this->_password)
+	{
+		ptr->password = msgs->substr(5, msgs->find('\n')-6);
 		std::cout << "PASS :" << ptr->password << std::endl;
 		LoggedIn(fd);
+		msgs->erase(0, msgs->find('\n')+1);
 	}
-	else if (check_empty((*msgs)) == -1)
-		send(fd,"461 ERR_NEEDMOREPARAMS\nPASS :Not enough parameters\n",52,0);
-	msgs->erase(0, msgs->find('\n')+1);
 }
 
 void Server::LoggedIn(int fd)
@@ -193,7 +207,6 @@ void Server::get_msgs(int fd_client, char *buf)
 			this->_client_msgs[fd_client].erase(0,this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		}
-		std::cout << "HERE\n";
 	}
 }
 
