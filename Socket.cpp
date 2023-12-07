@@ -112,7 +112,7 @@ void Socket::run(){
 						len = rc;
 						(void) len;
 						std::cout << "recieved: " << buffer << std::endl;
-						server.get_msgs(new_sd, buffer); //parsing message (for login and commands)
+						server.get_msgs(i, buffer); //parsing message (for login and commands)
 /* 						if ((rc = send(i, buffer, len, 0)) < 0){  //commented out for login test
 							perror("send");
 							close_conn = true;

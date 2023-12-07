@@ -62,7 +62,7 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 	while (this->_client_msgs.at(fd_client).empty() == false && this->_client_msgs.at(fd_client).find('\n') != std::string::npos)
 	{
 		id = 999;
-		for (int i = 0; i <= 7; i++)
+		for (int i = 0; i < 9; i++)
 		{
 			if (this->_client_msgs[fd_client].substr(0,cmd[i].size()) == cmd[i])
 			{
@@ -105,7 +105,7 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		default:
-			this->_client_msgs[fd_client].clear();
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		}
 		// std::cout << "HERE\n";
@@ -169,8 +169,9 @@ void Server::LoggedIn(int fd)
 
 void Server::addClient(int fd_client)
 {
-	if (!this->_clients.count(fd_client))
+	if (this->_clients.count(fd_client) == 0)
 	{
+		std::cout << "A CLIENT HAS BEEN ADDED :" << fd_client << "\n";
 		this->_clients.insert(std::pair<int, client*>(fd_client,new client));
 		this->_clients.at(fd_client)->is_logged = false;
 	}
@@ -178,12 +179,12 @@ void Server::addClient(int fd_client)
 
 void Server::delClient(int fd_client)
 {
-	if (this->_clients.count(fd_client))
+	if (this->_clients.count(fd_client) == 1)
 	{
-		this->_client_msgs.at(fd_client).clear();
+		std::cout << "A CLIENT HAS BEEN DELETED :" << fd_client << "\n";
+		this->_client_msgs.erase(fd_client);
 		delete this->_clients.at(fd_client);
 		this->_clients.erase(fd_client);
-		this->_client_msgs.erase(fd_client);
 	}
 }
 
