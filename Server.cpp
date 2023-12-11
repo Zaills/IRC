@@ -11,9 +11,8 @@ Server::~Server()
 	std::cout << "Server terminated correctly\n";
 	std::map<int, client*>::const_iterator it = this->_clients.begin();
 	while (it != this->_clients.end()){
-		if ((*it).second != NULL) {
+		if ((*it).second != NULL)
 			delete (*it).second;
-		}
 		it++;
 	}
 }
@@ -24,22 +23,11 @@ int Server::check_input(std::string msgs) const
 		return -1;
 	std::string str = &msgs[5];
 	if (str.find('\r') == std::string::npos)
-	{
 		str = str.substr(0,msgs.find('\n')-5);
-		std::cout << "ZZNCZZ\n";
-	}
 	else
-	{
-		std::cout << "ZZHEXCHATZZ\n";
 		str = str.substr(0,msgs.find('\r')-5);
-	}
-	std::cout << str;
-	std::cout << str;
-	std::cout << str;
-	std::cout << str;
 	std::map<int, client*>::const_iterator it = this->_clients.begin();
 	while (it != this->_clients.end()){
-		std::cout << (*it).second->nick << "=="<< str << "\n";
 		if ((*it).second->nick == str)
 			return -1;
 		it++;
@@ -70,21 +58,23 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 	}
 	else if (ptr->nick.empty() == false)
 	{
-		send(fd, "462 ERR_ALREADYREGISTRED :You may not register\n",48,0);
+		std::string buf = ": 463 " + ptr->nick + " ERR_ALREADYREGISTRED :You may not reregister\n";
+		send(fd, buf.c_str(), buf.size(),0);
 		msgs->erase(0, msgs->find("\n")+1);
 		return ;
 	}
 	else if (check_input((*msgs)) == -1)
 	{
 		std::string buf = ": 433 " + ptr->nick + " ERR_NICKNAMEINUSE :Nickname is already in use\n";
-		send(fd, buf.c_str(), buf.size(),0);
+		send(fd, buf.c_str(), buf.size(), 0);
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
 	else if (check_empty((*msgs)) == -1)
 	{
 		msgs->erase(0, msgs->find('\n')+1);
-		send(fd, "431 ERR_NONICKNAMEGIVEN\n :No nickname given\n",45,0);
+		std::string buf = ": 463 " + ptr->nick + " ERR_NONICKNAMEGIVEN :No nickname given\n";
+		send(fd, buf.c_str(), buf.size(), 0);
 		return ;
 	}
 /* 	else{
@@ -114,13 +104,17 @@ void Server::setUser(int fd)
 		return ;
 	if (ptr->user.empty() == false)
 	{
-		send(fd, "462 ERR_ALREADYREGISTRED :You may not register\n",48,0);
+		std::string buf = ": 462 " + ptr->nick + " ERR_ALREADYREGISTRED :You may not reregister\n";
+		send(fd, buf.c_str(), buf.size(), 0);
 		msgs->erase(0, msgs->find("\n")+1);
 		return;
 	}
 	else if (check_empty((*msgs)) == -1)
 	{
-		send(fd,"461 ERR_NEEDMOREPARAMS\nUSER :Not enough parameters\n",52,0);
+		std::string buf = ": 461 " + ptr->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
+		send(fd,buf.c_str(), buf.size(), 0);
+		msgs->erase(0, msgs->find("\n")+1);
+		return ;
 	}
 	if (msgs->find('\r') == std::string::npos)
 		ptr->user = msgs->substr(5, msgs->find('\n')-5); //maybe \r
@@ -137,13 +131,15 @@ void Server::setPass(int fd)
 	std::string *msgs = &(this->_client_msgs.at(fd));
 	if (ptr->password.empty() == false)
 	{
-		send(fd, "462 ERR_ALREADYREGISTRED :You may not reregister\n",48,0);
+		std::string buf = ": 462 " + ptr->nick + " ERR_ALREADYREGISTRED :You may not reregister\n";
+		send(fd, buf.c_str(), buf.size(), 0);
 		msgs->erase(0, msgs->find('\n')+1);
 		return;
 	}
 	if (check_empty((*msgs)) == -1)
 	{
-		send(fd,"461 ERR_NEEDMOREPARAMS\nPASS :Not enough parameters\n",52,0);
+		std::string buf = ": 461 " + ptr->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
+		send(fd, buf.c_str(), buf.size(), 0);
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
