@@ -1,5 +1,7 @@
 #include "Server.hpp"
 #include "Socket.hpp"
+#include "cmd/CMD.hpp"
+
 
 Server::Server(int ports, std::string password) : _password(password),  _ports(ports)
 {
@@ -52,27 +54,21 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
 	if (ptr->password != this->_password)
-	{
-		msgs->erase(0, msgs->find('\n')+1);
 		return ;
-	}
 	else if (ptr->nick.empty() == false)
 	{
 		std::string buf = ": 463 " + ptr->nick + " ERR_ALREADYREGISTRED :You may not reregister\n";
 		send(fd, buf.c_str(), buf.size(),0);
-		msgs->erase(0, msgs->find("\n")+1);
 		return ;
 	}
 	else if (check_input((*msgs)) == -1)
 	{
 		std::string buf = ": 433 " + ptr->nick + " ERR_NICKNAMEINUSE :Nickname is already in use\n";
 		send(fd, buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
 	else if (check_empty((*msgs)) == -1)
 	{
-		msgs->erase(0, msgs->find('\n')+1);
 		std::string buf = ": 463 " + ptr->nick + " ERR_NONICKNAMEGIVEN :No nickname given\n";
 		send(fd, buf.c_str(), buf.size(), 0);
 		return ;
@@ -87,7 +83,6 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 				{
 					std::string buf = ": 432 " + ptr->nick + " ERR_ERRONEUSNICKNAME :Erroneus nickname\n";
 					send(fd, buf.c_str(), buf.size(),0);
-					msgs->erase(0, msgs->find('\n')+1);
 					return ;
 				}
 			}
@@ -105,11 +100,10 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 		ptr->nick = msgs->substr(5, msgs->find('\n')-5);
 	else
 		ptr->nick = msgs->substr(5, msgs->find('\r')-5);
-	msgs->erase(0, msgs->find('\n')+1);
 	std::cout << "NICK :" << ptr->nick<<std::endl;
 	LoggedIn(fd);
 }
-	/* 			 */
+
 void Server::setUser(int fd)
 {
 	client *ptr = this->_clients.at(fd);
@@ -120,14 +114,12 @@ void Server::setUser(int fd)
 	{
 		std::string buf = ": 462 " + ptr->nick + " ERR_ALREADYREGISTRED :You may not reregister\n";
 		send(fd, buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find("\n")+1);
 		return;
 	}
 	else if (check_empty((*msgs)) == -1)
 	{
 		std::string buf = ": 461 " + ptr->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
 		send(fd,buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find("\n")+1);
 		return ;
 	}
 	if (msgs->find('\r') == std::string::npos)
@@ -135,7 +127,6 @@ void Server::setUser(int fd)
 	else
 		ptr->user = msgs->substr(5, msgs->find("*")-8);
 	std::cout << "USER :" << ptr->user << std::endl;
-	msgs->erase(0, msgs->find("\n")+1);
 	LoggedIn(fd);
 }
 
@@ -147,14 +138,12 @@ void Server::setPass(int fd)
 	{
 		std::string buf = ": 462 " + ptr->nick + " ERR_ALREADYREGISTRED :You may not reregister\n";
 		send(fd, buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find('\n')+1);
 		return;
 	}
 	if (check_empty((*msgs)) == -1)
 	{
 		std::string buf = ": 461 " + ptr->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
 		send(fd, buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
 	if (msgs->find('\r') == std::string::npos)
@@ -165,7 +154,6 @@ void Server::setPass(int fd)
 			std::cout << "(nc)PASS :" << ptr->password << std::endl;
 			LoggedIn(fd);
 		}
-		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
 	if (msgs->substr(5, msgs->find('\n')-6) == this->_password)
@@ -173,7 +161,11 @@ void Server::setPass(int fd)
 		ptr->password = msgs->substr(5, msgs->find('\n')-6);
 		std::cout << "(hexchat)PASS :" << ptr->password << std::endl;
 		LoggedIn(fd);
-		msgs->erase(0, msgs->find('\n')+1);
+	}
+	else
+	{
+		std::string buf = ": 464 " + ptr->nick + " ERR_PASSWDMISMATCH :Password incorrect\n";
+		send(fd, buf.c_str(), buf.size(), 0);
 	}
 }
 
@@ -187,6 +179,7 @@ void Server::LoggedIn(int fd)
 	}
 }
 
+
 //		FONCTION PUBLIQUE		//
 
 void Server::get_msgs(int fd_client, char *buf)
@@ -199,12 +192,12 @@ void Server::get_msgs(int fd_client, char *buf)
 	else
 		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
 	std::cout << "MSG:" << this->_client_msgs[fd_client];
-	std::string cmd[] = {"NICK ", "USER ", "PASS ", "INVITE ", "TOPIC ", "MODE ", "KICK "};
+	std::string cmd[] = {"NICK ", "USER ", "PASS ", "INVITE ", "TOPIC ", "MODE ", "KICK ", "JOIN "};
 	int id;
 	while (this->_client_msgs.at(fd_client).empty() == false && this->_client_msgs.at(fd_client).find('\n') != std::string::npos)
 	{
 		id = 999;
-		for (int i = 0; i < 7; i++)
+		for (int i = 0; i < 8; i++)
 		{
 			if (this->_client_msgs[fd_client].substr(0,cmd[i].size()) == cmd[i])
 			{
@@ -216,24 +209,38 @@ void Server::get_msgs(int fd_client, char *buf)
 		{
 		case 0:
 			setNick(fd_client);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 1:
 			setUser(fd_client);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 2:
 			setPass(fd_client);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 3:
 			//INVITE
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 4:
 			//TOPIC
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 5:
 			//MODE
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 6:
-			//KICK
+			cmd_kick(this->_client_msgs[fd_client].erase(0, cmd[7].size()), this->_clients[fd_client], this);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			break;
+		case 7:
+			cmd_join(this->_client_msgs[fd_client].erase(0, cmd[7].size()), this->_clients[fd_client], this);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			break;
+		case 8:
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		default:
 			this->_client_msgs[fd_client].erase(0,this->_client_msgs[fd_client].find('\n')+1);
@@ -264,3 +271,11 @@ void Server::delClient(int fd_client)
 	}
 }
 
+std::vector<Chanel *> *Server::get_chanel(){
+	return &this->_chanels;
+}
+
+
+void	Server::new_chanel(Chanel *chanel){
+	this->_chanels.push_back(chanel);
+}

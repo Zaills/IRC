@@ -143,3 +143,6 @@ socklen_t Socket::get_addrlen(){
 	return this->addrlen;
 }
 
+Server	*Socket::get_server(){
+	return &this->server;
+}

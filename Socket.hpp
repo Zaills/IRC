@@ -49,6 +49,7 @@ public:
 	~Socket();
 
 	void		run();
+	Server	*get_server();
 
 	int			get_server_fd();
 	sockaddr_in	get_address();

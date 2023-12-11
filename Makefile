@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+         #
+#    By: marvin <marvin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/27 14:42:21 by rvinour           #+#    #+#              #
-#    Updated: 2023/12/05 14:36:31 by gouz             ###   ########.fr        #
+#    Updated: 2023/12/11 14:07:13 by marvin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,12 @@ NAME = ircserv
 
 SRC = main.cpp \
 		Socket.cpp\
-		Server.cpp
+		Server.cpp\
+		Chanel.cpp\
+		cmd/CMD_Utils.cpp\
+		cmd/Join.cpp\
+		cmd/Topic.cpp\
+		cmd/Kick.cpp
 
 OBJ = $(SRC:.cpp=.o)
 
