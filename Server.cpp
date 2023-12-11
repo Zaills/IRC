@@ -54,27 +54,21 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
 	if (ptr->password != this->_password)
-	{
-		msgs->erase(0, msgs->find('\n')+1);
 		return ;
-	}
 	else if (ptr->nick.empty() == false)
 	{
 		std::string buf = ": 463 " + ptr->nick + " ERR_ALREADYREGISTRED :You may not reregister\n";
 		send(fd, buf.c_str(), buf.size(),0);
-		msgs->erase(0, msgs->find("\n")+1);
 		return ;
 	}
 	else if (check_input((*msgs)) == -1)
 	{
 		std::string buf = ": 433 " + ptr->nick + " ERR_NICKNAMEINUSE :Nickname is already in use\n";
 		send(fd, buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
 	else if (check_empty((*msgs)) == -1)
 	{
-		msgs->erase(0, msgs->find('\n')+1);
 		std::string buf = ": 463 " + ptr->nick + " ERR_NONICKNAMEGIVEN :No nickname given\n";
 		send(fd, buf.c_str(), buf.size(), 0);
 		return ;
@@ -89,7 +83,6 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 				{
 					std::string buf = ": 432 " + ptr->nick + " ERR_ERRONEUSNICKNAME :Erroneus nickname\n";
 					send(fd, buf.c_str(), buf.size(),0);
-					msgs->erase(0, msgs->find('\n')+1);
 					return ;
 				}
 			}
@@ -107,11 +100,10 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 		ptr->nick = msgs->substr(5, msgs->find('\n')-5);
 	else
 		ptr->nick = msgs->substr(5, msgs->find('\r')-5);
-	msgs->erase(0, msgs->find('\n')+1);
 	std::cout << "NICK :" << ptr->nick<<std::endl;
 	LoggedIn(fd);
 }
-	/* 			 */
+
 void Server::setUser(int fd)
 {
 	client *ptr = this->_clients.at(fd);
@@ -122,14 +114,12 @@ void Server::setUser(int fd)
 	{
 		std::string buf = ": 462 " + ptr->nick + " ERR_ALREADYREGISTRED :You may not reregister\n";
 		send(fd, buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find("\n")+1);
 		return;
 	}
 	else if (check_empty((*msgs)) == -1)
 	{
 		std::string buf = ": 461 " + ptr->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
 		send(fd,buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find("\n")+1);
 		return ;
 	}
 	if (msgs->find('\r') == std::string::npos)
@@ -137,7 +127,6 @@ void Server::setUser(int fd)
 	else
 		ptr->user = msgs->substr(5, msgs->find("*")-8);
 	std::cout << "USER :" << ptr->user << std::endl;
-	msgs->erase(0, msgs->find("\n")+1);
 	LoggedIn(fd);
 }
 
@@ -149,14 +138,12 @@ void Server::setPass(int fd)
 	{
 		std::string buf = ": 462 " + ptr->nick + " ERR_ALREADYREGISTRED :You may not reregister\n";
 		send(fd, buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find('\n')+1);
 		return;
 	}
 	if (check_empty((*msgs)) == -1)
 	{
 		std::string buf = ": 461 " + ptr->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
 		send(fd, buf.c_str(), buf.size(), 0);
-		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
 	if (msgs->find('\r') == std::string::npos)
@@ -167,7 +154,6 @@ void Server::setPass(int fd)
 			std::cout << "(nc)PASS :" << ptr->password << std::endl;
 			LoggedIn(fd);
 		}
-		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
 	if (msgs->substr(5, msgs->find('\n')-6) == this->_password)
@@ -175,7 +161,6 @@ void Server::setPass(int fd)
 		ptr->password = msgs->substr(5, msgs->find('\n')-6);
 		std::cout << "(hexchat)PASS :" << ptr->password << std::endl;
 		LoggedIn(fd);
-		msgs->erase(0, msgs->find('\n')+1);
 	}
 }
 
@@ -219,14 +204,15 @@ void Server::get_msgs(int fd_client, char *buf)
 		{
 		case 0:
 			setNick(fd_client);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 1:
 			setUser(fd_client);
-			//this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 2:
 			setPass(fd_client);
-			//this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 3:
 			//INVITE
