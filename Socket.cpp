@@ -107,7 +107,7 @@ void Socket::run(){
 						//echo back to client
 						len = rc;
 						(void) len;
-						std::cout << "recieved: " << buffer << std::endl;
+						//std::cout << "recieved: " << buffer << std::endl;
 						server.get_msgs(i, buffer); //parsing message (for login and commands)
 /* 						if ((rc = send(i, buffer, len, 0)) < 0){  //commented out for login test
 							perror("send");

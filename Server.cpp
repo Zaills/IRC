@@ -18,16 +18,29 @@ Server::~Server()
 	}
 }
 
-int Server::check_input(std::string msgs, int fd) const
+int Server::check_input(std::string msgs) const
 {
 	if (msgs[0] == '\n' && msgs.size() == 1)
 		return -1;
 	std::string str = &msgs[5];
-	str = str.erase(str.size()-1,str.size());
+	if (str.find('\r') == std::string::npos)
+	{
+		str = str.substr(0,msgs.find('\n')-5);
+		std::cout << "ZZNCZZ\n";
+	}
+	else
+	{
+		std::cout << "ZZHEXCHATZZ\n";
+		str = str.substr(0,msgs.find('\r')-5);
+	}
+	std::cout << str;
+	std::cout << str;
+	std::cout << str;
+	std::cout << str;
 	std::map<int, client*>::const_iterator it = this->_clients.begin();
 	while (it != this->_clients.end()){
-		std::cout << "CHECK :" << (*it).second->nick << "=="<< str << "\n";
-		if ((*it).second->nick == str && (*it).first != fd)
+		std::cout << (*it).second->nick << "=="<< str << "\n";
+		if ((*it).second->nick == str)
 			return -1;
 		it++;
 	}
@@ -61,9 +74,9 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 		msgs->erase(0, msgs->find("\n")+1);
 		return ;
 	}
-	else if (check_input((*msgs), fd) == -1)
+	else if (check_input((*msgs)) == -1)
 	{
-		std::string buf = "433 ERR_NICKNAMEINUSE\n" + ptr->nick + " :Nickname is already in use\n";
+		std::string buf = ": 433 " + ptr->nick + " ERR_NICKNAMEINUSE :Nickname is already in use\n";
 		send(fd, buf.c_str(), buf.size(),0);
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
@@ -88,7 +101,7 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 	else
 		ptr->nick = msgs->substr(5, msgs->find('\r')-5);
 	msgs->erase(0, msgs->find('\n')+1);
-	std::cout << "NICK :" << ptr->nick << std::endl;
+	std::cout << "NICK :" << ptr->nick<<std::endl;
 	LoggedIn(fd);
 }
 
@@ -134,13 +147,13 @@ void Server::setPass(int fd)
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
-	if (msgs->find('\n',msgs->find('\n')+1) == std::string::npos) //peut etre pas propre mais sa marche
+	if (msgs->find('\r') == std::string::npos) //peut etre pas propre mais sa marche
 	{
 		if (msgs->substr(5, msgs->find('\n')-5) == this->_password)
 		{
-		ptr->password = msgs->substr(5, msgs->find('\n')-5);
-		std::cout << "(nc)PASS :" << ptr->password << std::endl;
-		LoggedIn(fd);
+			ptr->password = msgs->substr(5, msgs->find('\n')-5);
+			std::cout << "(nc)PASS :" << ptr->password << std::endl;
+			LoggedIn(fd);
 		}
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
