@@ -209,14 +209,12 @@ void Server::get_msgs(int fd_client, char *buf)
 		id = 999;
 		for (int i = 0; i < 8; i++)
 		{
-			std::cout << ">" + this->_client_msgs[fd_client].substr(0,cmd[i].size()) + "< -> >" + cmd[i] + "<" << std::endl;
 			if (this->_client_msgs[fd_client].substr(0,cmd[i].size()) == cmd[i])
 			{
 				id = i;
 				break;
 			}
 		}
-		std::cout << id << std::endl;
 		switch (id)
 		{
 		case 0:
