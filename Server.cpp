@@ -26,9 +26,9 @@ int Server::check_input(std::string msgs, int fd) const
 	str = str.erase(str.size()-1,str.size());
 	std::map<int, client*>::const_iterator it = this->_clients.begin();
 	while (it != this->_clients.end()){
-		if ((*it).second->nick == str && (*it).first != fd){
+		std::cout << "CHECK :" << (*it).second->nick << "=="<< str << "\n";
+		if ((*it).second->nick == str && (*it).first != fd)
 			return -1;
-		}
 		it++;
 	}
 	return 1;
@@ -41,10 +41,8 @@ int Server::check_empty(std::string msgs) const
 		return -1;
 	temp = &msgs[4];
 	for(size_t i = 0; i < temp.size(); i++)
-	{
 		if (!isspace(temp[i]))
 			return 1;
-	}
 	return -1;
 }
 
@@ -85,7 +83,10 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 				return ;
 			}
 	} */
-	ptr->nick = msgs->substr(5, msgs->find('\n')-5);
+	if (msgs->find('\r') == std::string::npos)
+		ptr->nick = msgs->substr(5, msgs->find('\n')-5);
+	else
+		ptr->nick = msgs->substr(5, msgs->find('\r')-5);
 	msgs->erase(0, msgs->find('\n')+1);
 	std::cout << "NICK :" << ptr->nick << std::endl;
 	LoggedIn(fd);
@@ -97,10 +98,7 @@ void Server::setUser(int fd)
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
 	if (ptr->password != this->_password)
-	{
-		//std::cout << ptr->password << " == " << this->_password << "\n";
 		return ;
-	}
 	if (ptr->user.empty() == false)
 	{
 		send(fd, "462 ERR_ALREADYREGISTRED :You may not register\n",48,0);
@@ -111,7 +109,10 @@ void Server::setUser(int fd)
 	{
 		send(fd,"461 ERR_NEEDMOREPARAMS\nUSER :Not enough parameters\n",52,0);
 	}
-	ptr->user = msgs->substr(5, msgs->find("*")-8);
+	if (msgs->find('\r') == std::string::npos)
+		ptr->user = msgs->substr(5, msgs->find('\n')-5); //maybe \r
+	else
+		ptr->user = msgs->substr(5, msgs->find("*")-8);
 	std::cout << "USER :" << ptr->user << std::endl;
 	msgs->erase(0, msgs->find("\n")+1);
 	LoggedIn(fd);
@@ -135,16 +136,19 @@ void Server::setPass(int fd)
 	}
 	if (msgs->find('\n',msgs->find('\n')+1) == std::string::npos) //peut etre pas propre mais sa marche
 	{
+		if (msgs->substr(5, msgs->find('\n')-5) == this->_password)
+		{
 		ptr->password = msgs->substr(5, msgs->find('\n')-5);
-		std::cout << "PASS :" << ptr->password << std::endl;
+		std::cout << "(nc)PASS :" << ptr->password << std::endl;
 		LoggedIn(fd);
+		}
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
 	if (msgs->substr(5, msgs->find('\n')-6) == this->_password)
 	{
 		ptr->password = msgs->substr(5, msgs->find('\n')-6);
-		std::cout << "PASS :" << ptr->password << std::endl;
+		std::cout << "(hexchat)PASS :" << ptr->password << std::endl;
 		LoggedIn(fd);
 		msgs->erase(0, msgs->find('\n')+1);
 	}
