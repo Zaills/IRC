@@ -29,6 +29,8 @@
 # include <exception>
 # include "Server.hpp"
 
+extern bool stop;
+
 class Socket{
 
 private:

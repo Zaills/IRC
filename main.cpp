@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: nmorandi <nmorandi@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/12/01 18:24:39 by gouz             ###   ########.fr       */
+/*   Updated: 2023/12/11 14:24:34 by nmorandi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,9 @@
 #include <iostream>
 #include <sys/socket.h>
 #include "Server.hpp"
+#include <signal.h>
+
+bool stop;
 
 int parse(int ac, char **av)
 {
@@ -31,8 +34,17 @@ int parse(int ac, char **av)
 	return (1);
 }
 
+void	sig_handling(int sig)
+{
+	(void)sig;
+	std::cout << "\b\bCONTROL+C HANDLED\n";
+	stop = true;
+}
+
 int main(void)
 {
+	stop = false;
+	signal(SIGINT,sig_handling);
 	try {
 		Socket Sck;
 		Sck.run();
