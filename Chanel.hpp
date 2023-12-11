@@ -15,14 +15,15 @@
 
 # include <string>
 # include <vector>
+# include "Client.hpp"
 
 typedef struct s_chanel{
 
 	std::string	name;
 	std::string	password;
 	std::string	topic;
-	std::vector<std::string>	user;
-	std::vector<std::string>	admin;
+	std::vector<client *>	user;
+	std::vector<client *>	admin;
 
 	unsigned int	user_limit;
 
@@ -31,7 +32,7 @@ typedef struct s_chanel{
 
 }	Chanel;
 
-Chanel	creat_chanel(std::string name, std::string password, std::string admin);
+Chanel	creat_chanel(std::string name, std::string password, client *admin);
 
 void	del_user(Chanel *chanel, std::string user);
 void	del_admin(Chanel *chanel, std::string admin);

@@ -15,6 +15,6 @@
 
 void	cmd_topic(std::string arg, client *w_client, Server *server);
 void	cmd_join(std::string arg, client *w_client, Server *server);
-
+void	cmd_kick(std::string arg, client *w_client, Server *server);
 
 #endif

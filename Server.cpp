@@ -94,7 +94,7 @@ void Server::get_msgs(int fd_client, char *buf) //ctrl+d 2 fois de suite casse t
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 6:
-			//KICK
+			cmd_kick(this->_client_msgs[fd_client].erase(0, cmd[7].size() + 1), this->_clients[fd_client], this);
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 7:
@@ -188,8 +188,8 @@ void Server::delClient(int fd_client)
 	}
 }
 
-std::vector<Chanel *> Server::get_chanel(){
-	return this->_chanels;
+std::vector<Chanel *> *Server::get_chanel(){
+	return &this->_chanels;
 }
 
 

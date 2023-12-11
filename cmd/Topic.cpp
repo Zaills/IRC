@@ -17,8 +17,8 @@ void	cmd_topic(std::string arg, client w_client, Server *server){
 	(void) w_client;
 	(void) server;
 
-	std::vector<Chanel *> v_chanel = server->get_chanel();
-	if (!chanel_exist(arg, v_chanel)) {
+	std::vector<Chanel *> *v_chanel = server->get_chanel();
+	if (!chanel_exist(arg, *v_chanel)) {
 		std::cout << "No topic found" << std::cout;
 	}
 }

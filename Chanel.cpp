@@ -11,8 +11,9 @@
 /* ************************************************************************** */
 
 #include "Chanel.hpp"
+#include "cmd/CMD_Utils.hpp"
 
-Chanel	creat_chanel(std::string name, std::string password, std::string admin)
+Chanel	creat_chanel(std::string name, std::string password, client *admin)
 {
 	Chanel	new_chanel;
 
@@ -25,38 +26,29 @@ Chanel	creat_chanel(std::string name, std::string password, std::string admin)
 	return (new_chanel);
 }
 
-void	del_user(Chanel *chanel, std::string user)
-{
-	for (unsigned int i = 0; i < chanel->user.size(); ++i)
-	{
-		if (chanel->user[i] == user)
-		{
-			chanel->user.erase(chanel->user.begin() + i);
-			return ;
+void	del_user(Chanel *chanel, std::string user) {
+	for (std::vector<client *>::iterator it = chanel->user.begin(); it != chanel->user.end(); it++) {
+		if (get_only_name((*it)->nick) == user){
+			chanel->user.erase(it);
+			return;
 		}
 	}
 }
 
-void	del_admin(Chanel *chanel, std::string admin)
-{
-	for (unsigned int i = 0; i < chanel->admin.size(); ++i)
-	{
-		if (chanel->admin[i] == admin)
-		{
-			chanel->admin.erase(chanel->admin.begin() + i);
-			return ;
+void	del_admin(Chanel *chanel, std::string admin) {
+	for (std::vector<client *>::iterator it = chanel->admin.begin(); it != chanel->admin.end(); it++) {
+		if (get_only_name((*it)->user) == admin){
+			chanel->admin.erase(it);
+			return;
 		}
 	}
 }
 
-void	del_invited(Chanel *chanel, std::string invited)
-{
-	for (unsigned int i = 0; i < chanel->invited.size(); ++i)
-	{
-		if (chanel->invited[i] == invited)
-		{
-			chanel->invited.erase(chanel->invited.begin() + i);
-			return ;
+void	del_invited(Chanel *chanel, std::string invited) {
+	for (std::vector<std::string>::iterator it = chanel->invited.begin(); it != chanel->invited.end(); it++) {
+		if ((*it) == invited){
+			chanel->invited.erase(it);
+			return;
 		}
 	}
 }
