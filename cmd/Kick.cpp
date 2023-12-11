@@ -18,7 +18,7 @@ static std::string get_2arg(std::string arg, std::string ch_name){
 		arg.erase(0, arg.find(' '));
 	if (arg[0] != '\n' || arg[0] != '\r')
 		return get_only_name(arg);
-	return 0;
+	return arg.erase(0, arg.size());
 }
 
 static void	no_chanel(int fd, std::string arg, client *w_client) {
@@ -36,8 +36,28 @@ static void not_op(int fd, std::string arg, client *w_client){
 	send(fd, buffer.c_str(), buffer.size(), 0);
 }
 
+static std::string get_reson(std::string arg, std::string ch_name){
+	std::string arg2 = get_2arg(arg, ch_name);
+	arg.erase(0, ch_name.size()+ 1);
+	while(arg[0] == ' ')
+		arg.erase(0, arg.find(' '));
+	arg.erase(0, arg2.size()+ 1);
+	while(arg[0] == ' ')
+		arg.erase(0, arg.find(' '));
+	if (arg[0] == '\n' || arg[0] == '\r')
+		return 0;
+	if (arg[0] == ':')
+		return arg.erase(0, 1);
+	return arg;
+}
+
 static void kick(std::string arg, client *w_client, Chanel w_chanel, Server *server){
-	std::string buffer = ":" + w_client->user + " KICK " + w_chanel.name +  " " + get_2arg(arg, w_chanel.name) + " :" + w_client->user + "\n";
+	std::string reson = get_reson(arg, w_chanel.name);
+	std::string buffer;
+	if (reson.empty())
+		buffer = ":" + get_only_name(w_client->user) + " KICK " + w_chanel.name +  " " + get_2arg(arg, w_chanel.name) + " :No reason given\n";
+	else
+		buffer = ":" + get_only_name(w_client->user) + " KICK " + w_chanel.name +  " " + get_2arg(arg, w_chanel.name) + " :" + reson;
 	for (std::vector<client *>::iterator it = w_chanel.user.begin(); it != w_chanel.user.end(); it++){
 		send(server->get_fd((*it)->user), buffer.c_str(), buffer.size(), 0);
 	}
@@ -83,6 +103,5 @@ void	cmd_kick(std::string arg, client *w_client, Server *server){
 		std::cout << "User: " + user +" was from: "  + w_chanel->name + " by: " + w_client->user << std::endl;
 		kick(arg, w_client, *w_chanel, server);
 		del_user(w_chanel, user);
-		std::cout << "no !" << std::endl;
 	}
 }
