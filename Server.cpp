@@ -224,11 +224,11 @@ void Server::get_msgs(int fd_client, char *buf)
 			break;
 		case 1:
 			setUser(fd_client);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			//this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 2:
 			setPass(fd_client);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			//this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 3:
 			//INVITE
