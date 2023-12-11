@@ -40,7 +40,7 @@ int Server::check_empty(std::string msgs) const
 	std::string temp = &msgs[3];
 	if (temp.size() == 1)
 		return -1;
-	temp = &msgs[4];
+	std::string temp = &msgs[4];
 	for(size_t i = 0; i < temp.size(); i++)
 		if (!isspace(temp[i]))
 			return 1;
@@ -97,7 +97,6 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 
 void Server::setUser(int fd)
 {
-
 	client *ptr = this->_clients.at(fd);
 	std::string *msgs = &(this->_client_msgs.at(fd));
 	if (ptr->password != this->_password)
@@ -117,7 +116,7 @@ void Server::setUser(int fd)
 		return ;
 	}
 	if (msgs->find('\r') == std::string::npos)
-		ptr->user = msgs->substr(5, msgs->find('\n')-5); //maybe \r
+		ptr->user = msgs->substr(5, msgs->find('\n')-5);
 	else
 		ptr->user = msgs->substr(5, msgs->find("*")-8);
 	std::cout << "USER :" << ptr->user << std::endl;
@@ -143,7 +142,7 @@ void Server::setPass(int fd)
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
-	if (msgs->find('\r') == std::string::npos) //peut etre pas propre mais sa marche
+	if (msgs->find('\r') == std::string::npos)
 	{
 		if (msgs->substr(5, msgs->find('\n')-5) == this->_password)
 		{
