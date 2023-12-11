@@ -31,6 +31,5 @@ public:
 	void delClient(int fd_clients);
 	std::vector<Chanel *> *get_chanel();
 	void	new_chanel(Chanel *chanel);
-	int		get_fd(std::string user);
 	~Server();
 };

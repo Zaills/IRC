@@ -51,7 +51,7 @@ static std::string get_reson(std::string arg, std::string ch_name){
 	return arg;
 }
 
-static void kick(std::string arg, client *w_client, Chanel w_chanel, Server *server){
+static void kick(std::string arg, client *w_client, Chanel w_chanel){
 	std::string reson = get_reson(arg, w_chanel.name);
 	std::string buffer;
 	if (reson.empty())
@@ -59,10 +59,10 @@ static void kick(std::string arg, client *w_client, Chanel w_chanel, Server *ser
 	else
 		buffer = ":" + get_only_name(w_client->user) + " KICK " + w_chanel.name +  " " + get_2arg(arg, w_chanel.name) + " :" + reson;
 	for (std::vector<client *>::iterator it = w_chanel.user.begin(); it != w_chanel.user.end(); it++){
-		send(server->get_fd((*it)->user), buffer.c_str(), buffer.size(), 0);
+		send((*it)->fd, buffer.c_str(), buffer.size(), 0);
 	}
 	for (std::vector<client *>::iterator it = w_chanel.admin.begin(); it != w_chanel.admin.end(); it++){
-		send(server->get_fd((*it)->user), buffer.c_str(), buffer.size(), 0);
+		send((*it)->fd, buffer.c_str(), buffer.size(), 0);
 	}
 }
 
@@ -83,25 +83,25 @@ void	cmd_kick(std::string arg, client *w_client, Server *server){
 
 
 	if (!chanel_exist(get_only_name(arg), *v_chanel)){
-		no_chanel(server->get_fd(w_client->user), arg, w_client);
+		no_chanel(w_client->fd, arg, w_client);
 		std::cout << "Chanel do not exist" << std::endl;
 		return;
 	}
 	Chanel *w_chanel = get_w_chanel(get_only_name(arg), v_chanel);
 	std::string user = get_2arg(arg, w_chanel->name);
 	if (!is_admin(*w_client, *w_chanel)){
-		not_op(server->get_fd(w_client->user), arg, w_client);
+		not_op(w_client->fd, arg, w_client);
 		std::cout << "User :" + w_client->user + " not an OP" << std::endl;
 		return;
 	}
 
 	if (user.empty() || !nick_in_chanel(user, *w_chanel)){
 		std::cout << "User: " + user +" not in chanel: "  + w_chanel->name << std::endl;
-		no_nick(server->get_fd(w_client->user), user, w_client);
+		no_nick(w_client->fd, user, w_client);
 	}
 	else {
 		std::cout << "User: " + user +" was from: "  + w_chanel->name + " by: " + w_client->user << std::endl;
-		kick(arg, w_client, *w_chanel, server);
+		kick(arg, w_client, *w_chanel);
 		del_user(w_chanel, user);
 	}
 }
