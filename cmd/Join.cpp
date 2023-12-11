@@ -50,8 +50,18 @@ static void join_send(int fd, std::string arg, client *w_client, Chanel w_chanel
 	send(fd, buffer.c_str(), buffer.size(), 0);
 }
 
+static void bad_name(int fd, std::string arg, client *w_client){
+	std::string buffer = ": 476 " + get_only_name(w_client->nick) + " " + arg + " :Invalid channel name\n";
+	send(fd, buffer.c_str(), buffer.size(), 0);
+}
+
 void	cmd_join(std::string arg, client *w_client, Server *server) {
 	std::vector<Chanel *> *v_chanel = server->get_chanel();
+	if (arg[0] != '#' && arg[0] != '&'){
+		bad_name(server->get_fd(w_client->user), get_only_name(arg), w_client);
+		std::cout << "Bad chanel name: " + get_only_name(arg) << std::endl;
+		return;
+	}
 	if (!chanel_exist(get_only_name(arg), *v_chanel)) {
 		Chanel *new_chanel = new Chanel(creat_chanel(get_only_name(arg), "", w_client));
 		server->new_chanel(new_chanel);
