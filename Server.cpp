@@ -189,6 +189,7 @@ void Server::LoggedIn(int fd)
 	}
 }
 
+
 //		FONCTION PUBLIQUE		//
 
 void Server::get_msgs(int fd_client, char *buf)
@@ -201,19 +202,21 @@ void Server::get_msgs(int fd_client, char *buf)
 	else
 		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
 	std::cout << "MSG:" << this->_client_msgs[fd_client];
-	std::string cmd[] = {"NICK", "USER", "PASS", "INVITE", "TOPIC", "MODE", "KICK"};
+	std::string cmd[] = {"NICK ", "USER ", "PASS ", "INVITE ", "TOPIC ", "MODE ", "KICK ", "JOIN "};
 	int id;
 	while (this->_client_msgs.at(fd_client).empty() == false && this->_client_msgs.at(fd_client).find('\n') != std::string::npos)
 	{
 		id = 999;
-		for (int i = 0; i < 9; i++)
+		for (int i = 0; i < 8; i++)
 		{
+			std::cout << ">" + this->_client_msgs[fd_client].substr(0,cmd[i].size()) + "< -> >" + cmd[i] + "<" << std::endl;
 			if (this->_client_msgs[fd_client].substr(0,cmd[i].size()) == cmd[i])
 			{
 				id = i;
 				break;
 			}
 		}
+		std::cout << id << std::endl;
 		switch (id)
 		{
 		case 0:
@@ -221,9 +224,11 @@ void Server::get_msgs(int fd_client, char *buf)
 			break;
 		case 1:
 			setUser(fd_client);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 2:
 			setPass(fd_client);
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 3:
 			//INVITE
@@ -238,76 +243,20 @@ void Server::get_msgs(int fd_client, char *buf)
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 6:
-			cmd_kick(this->_client_msgs[fd_client].erase(0, cmd[7].size() + 1), this->_clients[fd_client], this);
+			cmd_kick(this->_client_msgs[fd_client].erase(0, cmd[7].size()), this->_clients[fd_client], this);
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 7:
-			cmd_join(this->_client_msgs[fd_client].erase(0, cmd[7].size() + 1), this->_clients[fd_client], this);
+			cmd_join(this->_client_msgs[fd_client].erase(0, cmd[7].size()), this->_clients[fd_client], this);
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 8:
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		default:
-			this->_client_msgs[fd_client].clear();
+			this->_client_msgs[fd_client].erase(0,this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		}
-		std::cout << "HERE\n";
-	}
-}
-
-void Server::setNick(int fd)
-{
-	client *ptr = this->_clients.at(fd);
-	std::string *msgs = &(this->_client_msgs.at(fd));
-	if (ptr->nick.empty() == false)
-	{
-		msgs->clear();
-		return;
-	}
-	ptr->nick = msgs->substr(5, msgs->find('\n')-5);
-	msgs->erase(0, msgs->find('\n')+1);
-	std::cout << "NICK :" << ptr->nick << std::endl;
-	LoggedIn(fd);
-}
-
-void Server::setUser(int fd)
-{
-	client *ptr = this->_clients.at(fd);
-	std::string *msgs = &(this->_client_msgs.at(fd));
-	if (ptr->user.empty() == false)
-	{
-		msgs->clear();
-		return;
-	}
-	ptr->user = msgs->substr(5, msgs->find("*")-8);
-	std::cout << "USER :" << ptr->user << std::endl;
-	msgs->erase(0, msgs->find("\n")+1);
-	LoggedIn(fd);
-}
-
-void Server::setPass(int fd)
-{
-	client *ptr = this->_clients.at(fd);
-	std::string *msgs = &(this->_client_msgs.at(fd));
-	if (ptr->password.empty() == false)
-	{
-		msgs->clear();
-		return;
-	}
-	ptr->password = msgs->substr(5, msgs->find('\n')-5);
-	std::cout << "PASS :" << ptr->password << std::endl;
-	msgs->erase(0, msgs->find('\n')+1);
-	LoggedIn(fd);
-}
-
-void Server::LoggedIn(int fd)
-{
-	client *ptr = this->_clients.at(fd);
-	if (!ptr->nick.empty() && !ptr->user.empty())
-	{
-		ptr->is_logged = true;
-		std::cout << "A CLIENT HAS BEEN CONNECTED !\n";
 	}
 }
 
@@ -330,7 +279,22 @@ void Server::delClient(int fd_client)
 		this->_client_msgs.erase(fd_client);
 		delete this->_clients.at(fd_client);
 		this->_clients.erase(fd_client);
-		this->_client_msgs.erase(fd_client);
+	}
+}
+
+std::vector<Chanel *> *Server::get_chanel(){
+	return &this->_chanels;
+}
+
+
+void	Server::new_chanel(Chanel *chanel){
+	this->_chanels.push_back(chanel);
+}
+
+int	Server::get_fd(std::string user){
+	for (std::map<int, client*>::const_iterator it = this->_clients.begin(); it != this->_clients.end(); it++){
+		if (it->second->user == user)
+			return it->first;
 	}
 	return 0;
 }
