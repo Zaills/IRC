@@ -40,7 +40,7 @@ int Server::check_empty(std::string msgs) const
 	std::string temp = &msgs[3];
 	if (temp.size() == 1)
 		return -1;
-	std::string temp = &msgs[4];
+	temp = &msgs[4];
 	for(size_t i = 0; i < temp.size(); i++)
 		if (!isspace(temp[i]))
 			return 1;
@@ -77,15 +77,30 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 		send(fd, buf.c_str(), buf.size(), 0);
 		return ;
 	}
-/* 	else{
-		for (size_t i = 4; i < msgs->size(); i++)
-			if ((*msgs)[i] > 127 || (*msgs)[i] < 0){ --> compile error data type
-				std::string buf = "432 ERR_ERRONEUSNICKNAME\n" + ptr->nick + " :Erroneus nickname\n";
+	else
+	{
+		for (size_t i = 5; i < msgs->size(); i++)
+		{
+			if (i == 5)
+			{
+				if (!isalpha((*msgs)[5]))
+				{
+					std::string buf = ": 432 " + ptr->nick + " ERR_ERRONEUSNICKNAME :Erroneus nickname\n";
+					send(fd, buf.c_str(), buf.size(),0);
+					msgs->erase(0, msgs->find('\n')+1);
+					return ;
+				}
+			}
+			/* if (!isalnum((*msgs)[i]) && (*msgs)[i] != '[' && (*msgs)[i] != ']' && (*msgs)[i] != '-' &&
+				(*msgs)[i] != '{' && (*msgs)[i] != '}' && (*msgs)[i] != '\\' && (*msgs)[i] != '^' && (*msgs)[i] != '`')
+			{
+				std::string buf = ": 432 " + ptr->nick + " ERR_ERRONEUSNICKNAME :Erroneus nickname\n";
 				send(fd, buf.c_str(), buf.size(),0);
 				msgs->erase(0, msgs->find('\n')+1);
 				return ;
-			}
-	} */
+			} */
+		}
+	}
 	if (msgs->find('\r') == std::string::npos)
 		ptr->nick = msgs->substr(5, msgs->find('\n')-5);
 	else
@@ -94,7 +109,7 @@ void Server::setNick(int fd) //432 ERRONEUSNICKNAME ????? que faire
 	std::cout << "NICK :" << ptr->nick<<std::endl;
 	LoggedIn(fd);
 }
-
+	/* 			 */
 void Server::setUser(int fd)
 {
 	client *ptr = this->_clients.at(fd);
