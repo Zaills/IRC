@@ -274,11 +274,3 @@ std::vector<Chanel *> *Server::get_chanel(){
 void	Server::new_chanel(Chanel *chanel){
 	this->_chanels.push_back(chanel);
 }
-
-int	Server::get_fd(std::string user){
-	for (std::map<int, client*>::const_iterator it = this->_clients.begin(); it != this->_clients.end(); it++){
-		if (it->second->user == user)
-			return it->first;
-	}
-	return 0;
-}
