@@ -162,6 +162,11 @@ void Server::setPass(int fd)
 		std::cout << "(hexchat)PASS :" << ptr->password << std::endl;
 		LoggedIn(fd);
 	}
+	else
+	{
+		std::string buf = ": 464 " + ptr->nick + " ERR_PASSWDMISMATCH :Password incorrect\n";
+		send(fd, buf.c_str(), buf.size(), 0);
+	}
 }
 
 void Server::LoggedIn(int fd)
