@@ -7,6 +7,7 @@
 #include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
+
 class Server
 {
 private:
@@ -17,7 +18,8 @@ private:
 	std::string _password;
 	std::vector<Chanel *> _chanels;
 	int _ports;
-	int check_input(std::string *str, bool check_user) const;
+	int check_input(std::string str) const;
+	int check_empty(std::string str) const;
 	void setNick(int fd);
 	void setUser(int fd);
 	void setPass(int fd);
