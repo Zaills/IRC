@@ -45,7 +45,7 @@ static std::string get_reson(std::string arg, std::string ch_name){
 	while(arg[0] == ' ')
 		arg.erase(0, arg.find(' '));
 	if (arg[0] == '\n' || arg[0] == '\r')
-		return 0;
+		return arg.erase(0, arg.size());
 	if (arg[0] == ':')
 		return arg.erase(0, 1);
 	return arg;
