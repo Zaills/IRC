@@ -133,7 +133,14 @@ void Server::setPass(int fd)
 		msgs->erase(0, msgs->find('\n')+1);
 		return ;
 	}
-	std::cout << msgs->substr(5, msgs->find('\n')-6) << " == " << this->_password << "\n";
+	if (msgs->find('\n',msgs->find('\n')+1) == std::string::npos) //peut etre pas propre mais sa marche
+	{
+		ptr->password = msgs->substr(5, msgs->find('\n')-5);
+		std::cout << "PASS :" << ptr->password << std::endl;
+		LoggedIn(fd);
+		msgs->erase(0, msgs->find('\n')+1);
+		return ;
+	}
 	if (msgs->substr(5, msgs->find('\n')-6) == this->_password)
 	{
 		ptr->password = msgs->substr(5, msgs->find('\n')-6);
