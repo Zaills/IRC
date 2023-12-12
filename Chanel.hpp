@@ -29,6 +29,7 @@ typedef struct s_chanel{
 
 	std::vector<std::string>	invited;
 	bool	invite;
+	bool	m_t;
 
 }	Chanel;
 

@@ -81,3 +81,5 @@ void	cmd_join(std::string arg, client *w_client, Server *server) {
 		}
 	}
 }
+
+//nb max chanel

@@ -22,6 +22,7 @@ Chanel	creat_chanel(std::string name, std::string password, client *admin)
 	new_chanel.password = password;
 	new_chanel.user_limit = 0;
 	new_chanel.invite = false;
+	new_chanel.m_t = false;
 	new_chanel.admin.push_back(admin);
 	return (new_chanel);
 }
