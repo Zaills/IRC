@@ -40,12 +40,16 @@ void privmsg(int fd, std::map<int, client *> _clients, std::map<int, std::string
 		return ERR_NOTEXTTOSEND(_clients.at(fd));
 	while (it != _clients.end() && found == false){
 		if ((*it).second->nick == receiver)
+		{
 			found = true;
+			break ;
+		}
 		it++;
 	}
 	if (found == false)
 		return ERR_NOSUCHNICK(receiver, fd);
-	send((*it).second->fd, text.c_str(), text.size(),0);
+	std::string buf =":" + _clients.at(fd)->nick + " PRIVMSG " + receiver + " :" + text;
+	send((*it).second->fd, buf.c_str(), buf.size(),0);
 }
 
 //		c est pour $privmsg et #privmsg peut etre pas a gerer

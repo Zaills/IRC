@@ -19,6 +19,6 @@ void	cmd_kick(std::string arg, client *w_client, Server *Server);
 void	privmsg(int fd, std::map<int, client *> _clients, std::map<int, std::string> _client_msgs);
 void	setUser(int fd, std::map<int, client *> _clients, std::map<int, std::string> _client_msgs, std::string password);
 void	setPass(int fd, std::map<int, client *> _clients, std::map<int, std::string> _client_msgs, std::string password);
-void setNick(int fd,std::map<int, client *> _clients, std::map<int, std::string> _client_msgs, std::string password);
+void	setNick(int fd, std::map<int, client *> _clients, std::map<int, std::string> _client_msgs, std::string password);
 
 #endif

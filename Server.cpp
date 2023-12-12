@@ -2,7 +2,6 @@
 #include "Socket.hpp"
 #include "cmd/CMD.hpp"
 
-
 Server::Server(int ports, std::string password) : _password(password),  _ports(ports)
 {
 	std::cout << "Server created\n";
@@ -18,11 +17,6 @@ Server::~Server()
 		it++;
 	}
 }
-
-
-
-
-//		FONCTION PUBLIQUE		//
 
 void Server::get_msgs(int fd_client, char *buf)
 {
