@@ -8,6 +8,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
+#include "cmd/Privmsg_err.hpp"
+
 class Server
 {
 private:
@@ -24,6 +26,7 @@ private:
 	void setUser(int fd);
 	void setPass(int fd);
 	void LoggedIn(int fd);
+	void privmsg(int fd);
 public:
 	Server(int ports, std::string password);
 	void get_msgs(int socket, char *buf);

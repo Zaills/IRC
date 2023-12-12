@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: marvin <marvin@student.42.fr>              +#+  +:+       +#+         #
+#    By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/27 14:42:21 by rvinour           #+#    #+#              #
-#    Updated: 2023/12/11 14:07:13 by marvin           ###   ########.fr        #
+#    Updated: 2023/12/12 15:14:30 by gouz             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,8 @@ SRC = main.cpp \
 		cmd/CMD_Utils.cpp\
 		cmd/Join.cpp\
 		cmd/Topic.cpp\
-		cmd/Kick.cpp
+		cmd/Kick.cpp\
+		cmd/Privmsg_err.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

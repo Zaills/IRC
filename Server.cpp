@@ -180,6 +180,23 @@ void Server::LoggedIn(int fd)
 }
 
 
+void Server::privmsg(int fd)
+{
+	//client *ptr = this->_clients.at(fd);
+	std::string msgs = &(this->_client_msgs.at(fd)[8]);
+	std::string receiver = msgs.substr(0,msgs.find(' '));
+	std::string text = &msgs[receiver.size()+1];
+	std::cout << "txt:"<<text;
+	std::map<int, client*>::const_iterator it = this->_clients.begin();
+	while (it != this->_clients.end()){
+		if ((*it).second->nick == receiver)
+			break ;
+		it++;
+	}
+
+	send((*it).second->fd, text.c_str(), text.size(),0);
+}
+
 //		FONCTION PUBLIQUE		//
 
 void Server::get_msgs(int fd_client, char *buf)
@@ -192,12 +209,12 @@ void Server::get_msgs(int fd_client, char *buf)
 	else
 		this->_client_msgs.insert(std::pair<int,std::string>(fd_client, this->_client_msgs.at(fd_client).append(temp)));
 	std::cout << "MSG:" << this->_client_msgs[fd_client];
-	std::string cmd[] = {"NICK ", "USER ", "PASS ", "INVITE ", "TOPIC ", "MODE ", "KICK ", "JOIN "};
+	std::string cmd[] = {"NICK ", "USER ", "PASS ", "INVITE ", "TOPIC ", "MODE ", "KICK ", "JOIN ", "PRIVMSG "};
 	int id;
 	while (this->_client_msgs.at(fd_client).empty() == false && this->_client_msgs.at(fd_client).find('\n') != std::string::npos)
 	{
 		id = 999;
-		for (int i = 0; i < 8; i++)
+		for (int i = 0; i < 9; i++)
 		{
 			if (this->_client_msgs[fd_client].substr(0,cmd[i].size()) == cmd[i])
 			{
@@ -240,6 +257,7 @@ void Server::get_msgs(int fd_client, char *buf)
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 8:
+			privmsg(fd_client);
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		default:
