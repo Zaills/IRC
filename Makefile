@@ -6,7 +6,7 @@
 #    By: gouz <gouz@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/27 14:42:21 by rvinour           #+#    #+#              #
-#    Updated: 2023/12/12 15:14:30 by gouz             ###   ########.fr        #
+#    Updated: 2023/12/12 19:11:38 by gouz             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,7 +24,10 @@ SRC = main.cpp \
 		cmd/Join.cpp\
 		cmd/Topic.cpp\
 		cmd/Kick.cpp\
-		cmd/Privmsg_err.cpp
+		cmd/Privmsg.cpp\
+		cmd/Nick.cpp\
+		cmd/Pass.cpp\
+		cmd/User.cpp
 
 OBJ = $(SRC:.cpp=.o)
 
