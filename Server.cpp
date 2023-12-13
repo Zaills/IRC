@@ -16,6 +16,12 @@ Server::~Server()
 			delete (*it).second;
 		it++;
 	}
+	std::vector<Chanel *>::const_iterator it2 = this->_chanels.begin();
+	while (it2 != this->_chanels.end()){
+		if (*it2 != NULL)
+			delete (*it2);
+		it2++;
+	}
 }
 
 void Server::get_msgs(int fd_client, char *buf)
@@ -76,7 +82,7 @@ void Server::get_msgs(int fd_client, char *buf)
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 8:
-			privmsg(fd_client, this->_clients, this->_client_msgs);
+			privmsg(fd_client, this->_clients, this->_client_msgs, this->_chanels);
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		default:
