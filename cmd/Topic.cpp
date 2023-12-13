@@ -13,7 +13,7 @@
 # include "CMD_Utils.hpp"
 #include <string>
 
-static std::string get_2arg(std::string arg, std::string ch_name) {
+static	std::string	get_2arg(std::string arg, std::string ch_name) {
 	arg.erase(0, ch_name.size()+ 1);
 	while(arg[0] == ' ')
 		arg.erase(0, arg.find(' '));
@@ -22,19 +22,35 @@ static std::string get_2arg(std::string arg, std::string ch_name) {
 	return arg.erase(0, arg.size());
 }
 
-static void	send_topic(std::string arg, client *w_client, Chanel *w_chanel) {
-	if (w_chanel->topic.empty()){
-		std::string buffer = ": 331 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :No topic is set\n";
+static	void	send_topic(client *w_client, Chanel w_chanel) {
+	if (w_chanel.topic.empty()){
+		std::string buffer = ": 331 " + get_only_name(w_client->nick) + " " + get_only_name(w_chanel.name) + " :No topic is set\n";
 		send(w_client->fd, buffer.c_str(), buffer.size(), 0);
 	}
 	else {
-		std::string buffer = ": 332" + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :" + get_only_name(w_chanel->topic) + "\n";
+		std::string buffer = ": 332 " + get_only_name(w_client->nick) + " " + get_only_name(w_chanel.name) + " :" + get_only_name(w_chanel.topic) + "\n";
 		send(w_client->fd, buffer.c_str(), buffer.size(), 0);
 	}
 }
 
-static void	set_topic(std::string arg, client *w_client, Chanel *w_chanel) {
-	if (w_chanel)
+static	void	send_all(Chanel w_chanel){
+	for (std::vector<client *>::iterator it = w_chanel.user.begin(); it != w_chanel.user.end(); it++){
+		send_topic(*it, w_chanel);
+	}
+	for (std::vector<client *>::iterator it = w_chanel.admin.begin(); it != w_chanel.admin.end(); it++){
+		send_topic(*it, w_chanel);
+	}
+}
+
+static	void	set_topic(std::string arg, client *w_client, Chanel *w_chanel) {
+	if (w_chanel->m_t && !is_admin(*w_client, *w_chanel)){
+		std::string buffer = ": 482 " + get_only_name(w_client->nick) + " " + get_only_name(w_chanel->name) + " :You're not channel operator\n";
+		send(w_client->fd, buffer.c_str(), buffer.size(), 0);
+	}
+	else{
+		w_chanel->topic = get_2arg(arg, w_chanel->name);
+		send_all(*w_chanel);
+	}
 }
 
 void	cmd_topic(std::string arg, client *w_client, Server *server) {
@@ -52,8 +68,7 @@ void	cmd_topic(std::string arg, client *w_client, Server *server) {
 	}
 	std::string topic = get_2arg(arg, w_chanel->name);
 	if (topic.empty())
-		send_topic(arg, w_client, w_chanel);
-	else {
-	//settopic
-	}
+		send_topic(w_client, *w_chanel);
+	else
+		set_topic(arg, w_client, w_chanel);
 }
