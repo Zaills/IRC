@@ -27,4 +27,5 @@ void	no_nick(int fd, std::string arg, client *w_client);
 void	not_op(int fd, std::string arg, client *w_client);
 void	not_on_chanel(int fd, std::string arg, client *w_client);
 
+void	send_topic(client *w_client, Chanel w_chanel);
 #endif
