@@ -48,7 +48,6 @@ static void send_to_channel(int fd, std::vector<Chanel *> _chanels, std::string 
 		{
 			buf = ":"+ sender + " PRIVMSG " + ptr->name + " :" + text;
 			send((*it_user)->fd,buf.c_str(), buf.size(),0);
-			std::cout << "sent to :" <<(*it_user)->nick << std::endl;
 		}
 		it_user++;
 	}
@@ -58,7 +57,6 @@ static void send_to_channel(int fd, std::vector<Chanel *> _chanels, std::string 
 		{
 			buf = ":" + sender + " PRIVMSG " + ptr->name + " :" + text;
 			send((*it_admin)->fd,buf.c_str(), buf.size(),0);
-			std::cout << "sent to :" <<(*it_admin)->nick << std::endl;
 		}
 		it_admin++;
 	}
@@ -68,7 +66,7 @@ void privmsg(int fd, std::map<int, client *> _clients, std::map<int, std::string
 {
 	std::string msgs = &(_client_msgs.at(fd)[8]);
 	std::string receiver = msgs.substr(0,msgs.find(' '));
-	std::string text = &msgs[receiver.size()+1];
+	std::string text;
 	std::map<int, client*>::const_iterator it = _clients.begin();
 	std::vector<Chanel *>::const_iterator it_chan = _chanels.begin();
 	bool user = false, chanel = false;
@@ -77,6 +75,7 @@ void privmsg(int fd, std::map<int, client *> _clients, std::map<int, std::string
 		receiver.erase(receiver.size()-1,receiver.size());
 	if (receiver[0] == '\r' && receiver.size() == 1)
 		return ERR_NORECIPIENT(_clients.at(fd), "PRIVMSG");
+	text = &msgs[receiver.size()+1];
 	if (text.empty())
 		return ERR_NOTEXTTOSEND(_clients.at(fd));
 	while (it != _clients.end()){
@@ -99,7 +98,6 @@ void privmsg(int fd, std::map<int, client *> _clients, std::map<int, std::string
 		return ERR_NOSUCHNICK(receiver, fd);
 	if (chanel == true)
 	{
-		std::cout << "SENDING TO CHANNEL\n";
 		send_to_channel(fd, _chanels, text, receiver, _clients.at(fd)->nick);
 		return ;
 	}
