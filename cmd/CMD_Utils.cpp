@@ -59,3 +59,25 @@ bool	is_admin(client user, Chanel w_chanel) {
 	}
 	return false;
 }
+
+//Send
+
+void	no_chanel(int fd, std::string arg, client *w_client) {
+	std::string buffer = ": 403 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :No such channel\n";
+	send(fd, buffer.c_str(), buffer.size(), 0);
+}
+
+void	no_nick(int fd, std::string arg, client *w_client) {
+	std::string buffer = ": 401 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :No such nick/channel\n";
+	send(fd, buffer.c_str(), buffer.size(), 0);
+}
+
+void	not_op(int fd, std::string arg, client *w_client){
+	std::string buffer = ": 482 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :You're not channel operator\n";
+	send(fd, buffer.c_str(), buffer.size(), 0);
+}
+
+void	not_on_chanel(int fd, std::string arg, client *w_client){
+	std::string buffer = ": 442 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :You're not on that channel\n";
+	send(fd, buffer.c_str(), buffer.size(), 0);
+}
