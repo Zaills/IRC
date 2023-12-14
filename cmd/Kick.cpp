@@ -85,6 +85,5 @@ void	cmd_kick(std::string arg, client *w_client, Server *server){
 		kick(arg, w_client, *w_chanel);
 		del_user(w_chanel, get_only_name(user));
 		del_admin(w_chanel, get_only_name(user));
-		//if no more client
 	}
 }

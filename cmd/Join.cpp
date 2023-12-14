@@ -73,17 +73,19 @@ void	cmd_join(std::string arg, client *w_client, Server *server) {
 	}
 	else {
 		Chanel *w_chanel = get_w_chanel(get_only_name(arg), v_chanel);
-		if (w_chanel->m_i) {
-			not_invited(w_client, *w_chanel);
+		if (already_in_chanel(w_client->user, *w_chanel)) {
+			std::cout << "user: " +  w_client->user +" already in chanel: "  + w_chanel->name << std::endl;
 		}
-		else if (!already_in_chanel(w_client->user, *w_chanel)) {
+		else if (w_chanel->m_i && !server->isInvited(w_chanel->name, w_client->nick)) {
+			not_invited(w_client, *w_chanel);
+			std::cout << "user: " +  w_client->user +" not invited in Chanel: "  + w_chanel->name << std::endl;
+		}
+		else {
+			if (w_chanel->m_i && server->isInvited(w_chanel->name, w_client->nick))
+				server->delInvited(w_chanel->name, w_client->nick);
 			w_chanel->user.push_back(w_client);
 			std::cout << "user: " + w_client->user +" joined chanel: "  + w_chanel->name << std::endl;
 			join_send(w_client->fd, w_client, *w_chanel);
 		}
-		else
-			std::cout << "user: " +  w_client->user +" already in chanel: "  + w_chanel->name << std::endl;
 	}
 }
-
-//nb max chanel

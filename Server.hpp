@@ -27,6 +27,10 @@ public:
 	void delClient(int fd_clients);
 	void delChanelClient(int fd);
 	std::vector<Chanel *> *get_chanel();
-	void	new_chanel(Chanel *chanel);
+	void new_chanel(Chanel *chanel);
+	void addInvited(std::string key, std::string value);
+	void delInvited(std::string key, std::string value);
+	bool isInvited(std::string key, std::string value);
+
 	~Server();
 };

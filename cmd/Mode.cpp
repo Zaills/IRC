@@ -12,10 +12,6 @@
 
 #include "CMD_Utils.hpp"
 
-// static void	mode_t(std::string type, Chanel *w_chanel){
-
-// }
-
 void	send_mode(client *w_client, Chanel w_chanel) {
 	std::string buffer;
 	if (w_chanel.m_t)
@@ -61,7 +57,7 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 			if (type[0] == '+')
 				w_chanel->m_i = 1;
 			if (type[0] == '-')
-				w_chanel->m_t = 0;
+				w_chanel->m_i = 0;
 		break;
 		case 't':
 			if (type[0] == '+')
