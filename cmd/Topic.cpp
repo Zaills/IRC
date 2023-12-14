@@ -13,15 +13,6 @@
 # include "CMD_Utils.hpp"
 #include <string>
 
-static	std::string	get_2arg(std::string arg, std::string ch_name) {
-	arg.erase(0, ch_name.size()+ 1);
-	while(arg[0] == ' ')
-		arg.erase(0, arg.find(' '));
-	if (arg[0] != '\n' || arg[0] != '\r')
-		return arg;
-	return arg.erase(0, arg.size());
-}
-
 void	send_topic(client *w_client, Chanel w_chanel) {
 	if (w_chanel.topic.empty()){
 		std::string buffer = ": 331 " + get_only_name(w_client->nick) + " " + get_only_name(w_chanel.name) + " :No topic is set\n";

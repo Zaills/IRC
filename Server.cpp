@@ -130,7 +130,6 @@ void Server::delChanelClient(int fd){
 			}
 		}
 	}
-	std::cout << "SUCESS" << std::endl;
 }
 
 void Server::delClient(int fd_client)

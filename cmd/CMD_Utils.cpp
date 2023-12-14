@@ -51,6 +51,15 @@ std::string get_only_name(std::string arg) {
 	return out;
 }
 
+std::string	get_2arg(std::string arg, std::string ch_name) {
+	arg.erase(0, ch_name.size()+ 1);
+	while(arg[0] == ' ')
+		arg.erase(0, arg.find(' '));
+	if (arg[0] != '\n' || arg[0] != '\r')
+		return arg;
+	return arg.erase(0, arg.size());
+}
+
 bool	is_admin(client user, Chanel w_chanel) {
 
 	for(std::vector<client *>::iterator it = w_chanel.admin.begin(); it != w_chanel.admin.end(); it++){

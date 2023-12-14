@@ -18,8 +18,9 @@
 bool	chanel_exist(std::string chanel_name, std::vector<Chanel *> v_chanel);
 Chanel	*get_w_chanel(std::string chanel_name, std::vector<Chanel *> *v_chanel);
 bool	already_in_chanel(std::string name, Chanel w_chanel);
-std::string get_only_name(std::string arg);
 bool	is_admin(client user, Chanel w_chanel);
+std::string get_only_name(std::string arg);
+std::string	get_2arg(std::string arg, std::string ch_name);
 
 void LoggedIn(int fd, std::map<int, client *> _clients);
 int check_empty(std::string msgs);

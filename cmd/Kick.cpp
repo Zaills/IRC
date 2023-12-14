@@ -12,15 +12,6 @@
 
 #include "CMD_Utils.hpp"
 
-static std::string get_2arg(std::string arg, std::string ch_name){
-	arg.erase(0, ch_name.size()+ 1);
-	while(arg[0] == ' ')
-		arg.erase(0, arg.find(' '));
-	if (arg[0] != '\n' || arg[0] != '\r')
-		return get_only_name(arg);
-	return arg.erase(0, arg.size());
-}
-
 static std::string get_reson(std::string arg, std::string ch_name){
 	std::string arg2 = get_2arg(arg, ch_name);
 	arg.erase(0, ch_name.size()+ 1);
