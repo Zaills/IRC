@@ -30,6 +30,7 @@ typedef struct s_chanel{
 	std::vector<std::string>	invited;
 	bool	m_i;
 	bool	m_t;
+	bool	m_o_added;
 
 }	Chanel;
 

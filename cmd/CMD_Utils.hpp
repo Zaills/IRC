@@ -14,6 +14,7 @@
 #define CMD_UTILS_CPP
 
 # include "../Server.hpp"
+# include <stdlib.h>
 
 bool	chanel_exist(std::string chanel_name, std::vector<Chanel *> v_chanel);
 Chanel	*get_w_chanel(std::string chanel_name, std::vector<Chanel *> *v_chanel);
