@@ -21,24 +21,6 @@ static std::string get_2arg(std::string arg, std::string ch_name){
 	return arg.erase(0, arg.size());
 }
 
-<<<<<<< HEAD
-static void	no_chanel(int fd, std::string arg, client *w_client) {
-	std::string buffer = ": 403 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :No such channel\n";
-	send(fd, buffer.c_str(), buffer.size(), 0);
-}
-
-static void	no_nick(int fd, std::string arg, client *w_client) {
-	std::string buffer = ": 441 " + get_only_name(w_client->nick) + " " + get_2arg(arg, get_only_name(arg)) + " " + get_only_name(arg) + " :They aren't on that channel\n";
-	send(fd, buffer.c_str(), buffer.size(), 0);
-}
-
-static void not_op(int fd, std::string arg, client *w_client){
-	std::string buffer = ": 482 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :You're not channel operator\n";
-	send(fd, buffer.c_str(), buffer.size(), 0);
-}
-
-=======
->>>>>>> 35d32a7494a8fe917b3ef169eb16fd338bee8163
 static std::string get_reson(std::string arg, std::string ch_name){
 	std::string arg2 = get_2arg(arg, ch_name);
 	arg.erase(0, ch_name.size()+ 1);

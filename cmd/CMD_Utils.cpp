@@ -90,14 +90,14 @@ int check_empty(std::string msgs)
 	return -1;
 }
 
-void LoggedIn(int fd, std::map<int, client *> _clients)
-{
+void LoggedIn(int fd, std::map<int, client *> _clients) {
 	client *ptr = _clients.at(fd);
 	if (!ptr->nick.empty() && !ptr->user.empty())
 	{
 		ptr->is_logged = true;
 		std::cout << "A CLIENT HAS BEEN CONNECTED !\n";
 	}
+}
 
   //Send
 void	no_chanel(int fd, std::string arg, client *w_client) {

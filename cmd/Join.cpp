@@ -30,7 +30,7 @@ static std::string get_user(Chanel w_chanel, client w_client){
 }
 
 static void	join_send_first(int fd, std::string arg, client *w_client){
-	std::string buffer = ":" + get_only_name(w_client->nick) + " JOIN " + arg + '\n';
+	std::string buffer = ":" + get_only_name(w_client->nick) + "!" + w_client->user + " JOIN " + arg + '\n';
 	send(fd, buffer.c_str(), buffer.size(), 0);
 	buffer = ": 353 " + get_only_name(w_client->nick) + " = " + arg + " :@" + get_only_name(w_client->nick) + "\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
