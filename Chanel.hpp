@@ -28,7 +28,7 @@ typedef struct s_chanel{
 	unsigned int	user_limit;
 
 	std::vector<std::string>	invited;
-	bool	invite;
+	bool	m_i;
 	bool	m_t;
 
 }	Chanel;

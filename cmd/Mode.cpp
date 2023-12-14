@@ -12,18 +12,17 @@
 
 #include "CMD_Utils.hpp"
 
-// static void	mode_t(std::string type, client *w_client, Server *server){
+// static void	mode_t(std::string type, Chanel *w_chanel){
 
 // }
 
 void	send_mode(client *w_client, Chanel w_chanel) {
-	std::cout << "HEllo "<< std::endl;
 	std::string buffer;
 	if (w_chanel.m_t)
 		buffer += "t";
-	if (w_chanel.invite)
+	if (w_chanel.m_i)
 		buffer += "i";
-	if (w_chanel.invite)
+	if (w_chanel.user_limit)
 		buffer += "l";
 	//add the check
 
@@ -48,7 +47,6 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 		return;
 	}
 	std::string type = get_2arg(arg, w_chanel->name);
-	std::cout << ">" + type + "< >" + type[1] + "< "<< std::endl;
 	if (get_only_name(type).empty() || get_only_name(type).size() < 1) {
 		send_mode(w_client, *w_chanel);
 		return;
@@ -60,9 +58,16 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 	}
 	switch (type[1]) {
 		case 'i':
+			if (type[0] == '+')
+				w_chanel->m_i = 1;
+			if (type[0] == '-')
+				w_chanel->m_t = 0;
 		break;
 		case 't':
-			w_chanel->m_t = 1;
+			if (type[0] == '+')
+				w_chanel->m_t = 1;
+			if (type[0] == '-')
+				w_chanel->m_t = 0;
 		break;
 		case 'k':
 		break;
