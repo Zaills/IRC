@@ -10,6 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "CMD.hpp"
 # include "CMD_Utils.hpp"
 
 static std::string get_user(Chanel w_chanel, std::string user){
@@ -31,11 +32,13 @@ static std::string get_user(Chanel w_chanel, std::string user){
 static void	join_send_first(int fd, std::string arg, client *w_client){
 	std::string buffer = ":" + get_only_name(w_client->nick) + " JOIN " + arg + '\n';
 	send(fd, buffer.c_str(), buffer.size(), 0);
-	buffer = ": MODE " + get_only_name(arg) + " +t\n";
-	send(fd, buffer.c_str(), buffer.size(), 0);
 	buffer = ": 353 " + get_only_name(w_client->nick) + " = " + arg + " :@" + get_only_name(w_client->nick) + "\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
 	buffer = ": 366 " + get_only_name(w_client->nick) + " " + arg + " :End of /NAMES list\n";
+	send(fd, buffer.c_str(), buffer.size(), 0);
+
+	//should be auto after mode is made
+	buffer = ": MODE " + get_only_name(arg) + " +t\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
 }
 
@@ -46,7 +49,9 @@ static void join_send(int fd, std::string arg, client *w_client, Chanel w_chanel
 	buffer = ": 366 " + get_only_name(w_client->nick) + " " + arg + " :End of /NAMES list\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
 
-	buffer = ": MODE " + get_only_name(arg) + " +t\n"; //need to make it good
+	send_topic(w_client, w_chanel);
+	//should be auto after mode is made
+	buffer = ": MODE " + get_only_name(arg) + " +t\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
 }
 
@@ -81,3 +86,5 @@ void	cmd_join(std::string arg, client *w_client, Server *server) {
 		}
 	}
 }
+
+//nb max chanel

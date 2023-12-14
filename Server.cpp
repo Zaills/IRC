@@ -66,7 +66,7 @@ void Server::get_msgs(int fd_client, char *buf)
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 4:
-			//TOPIC
+			cmd_topic(this->_client_msgs[fd_client].erase(0, cmd[4].size()), this->_clients[fd_client], this);
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 5:
@@ -74,7 +74,7 @@ void Server::get_msgs(int fd_client, char *buf)
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 6:
-			cmd_kick(this->_client_msgs[fd_client].erase(0, cmd[7].size()), this->_clients[fd_client], this);
+			cmd_kick(this->_client_msgs[fd_client].erase(0, cmd[6].size()), this->_clients[fd_client], this);
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 7:

@@ -13,6 +13,8 @@
 #ifndef CMD_HPP
 # define CMD_HPP
 
+# include "../Server.hpp"
+
 void	cmd_topic(std::string arg, client *w_client, Server *server);
 void	cmd_join(std::string arg, client *w_client, Server *server);
 void	cmd_kick(std::string arg, client *w_client, Server *Server);

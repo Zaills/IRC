@@ -25,4 +25,11 @@ void LoggedIn(int fd, std::map<int, client *> _clients);
 int check_empty(std::string msgs);
 int check_input(std::string msgs, std::map<int, client *> _clients);
 
+//send
+void	no_chanel(int fd, std::string arg, client *w_client);
+void	no_nick(int fd, std::string arg, client *w_client);
+void	not_op(int fd, std::string arg, client *w_client);
+void	not_on_chanel(int fd, std::string arg, client *w_client);
+void	send_topic(client *w_client, Chanel w_chanel);
+
 #endif
