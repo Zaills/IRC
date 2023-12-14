@@ -60,8 +60,46 @@ bool	is_admin(client user, Chanel w_chanel) {
 	return false;
 }
 
-//Send
+int check_input(std::string msgs, std::map<int, client *> _clients)
+{
+	if (msgs[0] == '\n' && msgs.size() == 1)
+		return -1;
+	std::string str = &msgs[5];
+	if (str.find('\r') == std::string::npos)
+		str = str.substr(0,msgs.find('\n')-5);
+	else
+		str = str.substr(0,msgs.find('\r')-5);
+	std::map<int, client*>::const_iterator it = _clients.begin();
+	while (it != _clients.end()){
+		if ((*it).second->nick == str)
+			return -1;
+		it++;
+	}
+	return 1;
+}
 
+int check_empty(std::string msgs)
+{
+	std::string temp = &msgs[3];
+	if (temp.size() == 1)
+		return -1;
+	temp = &msgs[4];
+	for(size_t i = 0; i < temp.size(); i++)
+		if (!isspace(temp[i]))
+			return 1;
+	return -1;
+}
+
+void LoggedIn(int fd, std::map<int, client *> _clients)
+{
+	client *ptr = _clients.at(fd);
+	if (!ptr->nick.empty() && !ptr->user.empty())
+	{
+		ptr->is_logged = true;
+		std::cout << "A CLIENT HAS BEEN CONNECTED !\n";
+	}
+
+  //Send
 void	no_chanel(int fd, std::string arg, client *w_client) {
 	std::string buffer = ": 403 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :No such channel\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
