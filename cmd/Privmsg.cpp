@@ -78,6 +78,9 @@ void privmsg(int fd, std::map<int, client *> _clients, std::map<int, std::string
 	text = &msgs[receiver.size()+1];
 	if (text.empty())
 		return ERR_NOTEXTTOSEND(_clients.at(fd));
+	if (text[0] == ':') {
+		text.erase(0, 1);
+	}
 	while (it != _clients.end()){
 		if ((*it).second->nick == receiver)
 		{
@@ -98,10 +101,10 @@ void privmsg(int fd, std::map<int, client *> _clients, std::map<int, std::string
 		return ERR_NOSUCHNICK(receiver, fd);
 	if (chanel == true)
 	{
-		send_to_channel(fd, _chanels, text, receiver, _clients.at(fd)->nick);
+		send_to_channel(fd, _chanels, text, receiver, _clients.at(fd)->nick + "!" + _clients.at(fd)->user);
 		return ;
 	}
-	std::string buf =":" + _clients.at(fd)->nick + " PRIVMSG " + receiver + " :" + text;
+	std::string buf =":" + _clients.at(fd)->nick + "!" + _clients.at(fd)->user + " PRIVMSG " + receiver + " :" + text;
 	send((*it).second->fd, buf.c_str(), buf.size(),0);
 }
 
