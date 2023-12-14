@@ -37,7 +37,7 @@ void	del_user(Chanel *chanel, std::string user) {
 
 void	del_admin(Chanel *chanel, std::string admin) {
 	for (std::vector<client *>::iterator it = chanel->admin.begin(); it != chanel->admin.end(); it++) {
-		if (get_only_name((*it)->user) == admin){
+		if (get_only_name((*it)->nick) == admin){
 			chanel->admin.erase(it);
 			return;
 		}

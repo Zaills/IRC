@@ -29,6 +29,7 @@ public:
 	void get_msgs(int socket, char *buf);
 	void addClient(int fd_clients);
 	void delClient(int fd_clients);
+	void delChanelClient(int fd);
 	std::vector<Chanel *> *get_chanel();
 	void	new_chanel(Chanel *chanel);
 	~Server();

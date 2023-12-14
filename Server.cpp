@@ -260,6 +260,36 @@ void Server::addClient(int fd_client)
 	}
 }
 
+static void	send_leave(client *w_client, Chanel w_chanel){
+	std::string buffer = ":" + w_client->nick + "!" + w_client->user + " PART " + w_chanel.name + "\n";
+	for (std::vector<client *>::iterator it = w_chanel.user.begin(); it != w_chanel.user.end(); it++){
+		send((*it)->fd, buffer.c_str(), buffer.size(), 0);
+	}
+	for (std::vector<client *>::iterator it = w_chanel.admin.begin(); it != w_chanel.admin.end(); it++){
+		send((*it)->fd, buffer.c_str(), buffer.size(), 0);
+	}
+}
+
+void Server::delChanelClient(int fd){
+	for (std::vector<Chanel *>::iterator it_chanel = this->_chanels.begin(); it_chanel != this->_chanels.end(); it_chanel++){
+		for (std::vector<client *>::iterator it_user = (*it_chanel)->user.begin(); it_user != (*it_chanel)->user.end(); it_user++){
+			if (*it_user == this->_clients.at(fd)){
+				del_user(*it_chanel, (*it_user)->nick);
+				send_leave(*it_user, **it_chanel);
+				break;
+			}
+		}
+		for (std::vector<client *>::iterator it_user = (*it_chanel)->admin.begin(); it_user != (*it_chanel)->admin.end(); it_user++){
+			if (*it_user == this->_clients.at(fd)){
+				del_admin(*it_chanel, (*it_user)->nick);
+				send_leave(*it_user, **it_chanel);
+				break;
+			}
+		}
+	}
+	std::cout << "SUCESS" << std::endl;
+}
+
 void Server::delClient(int fd_client)
 {
 	if (this->_clients.count(fd_client) == 1)

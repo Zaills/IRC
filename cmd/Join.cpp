@@ -12,17 +12,17 @@
 
 # include "CMD_Utils.hpp"
 
-static std::string get_user(Chanel w_chanel, std::string user){
+static std::string get_user(Chanel w_chanel, client w_client){
 	std::string out;
 	std::string buffer;
 	for (std::vector<client *>::iterator it = w_chanel.user.begin(); it != w_chanel.user.end(); it++){
 		out += get_only_name((*it)->nick) + " ";
-		buffer = ":" + user + " JOIN :" + w_chanel.name + "\n";
+		buffer = ":" + w_client.nick + "!" + w_client.user + " JOIN :" + w_chanel.name + "\n";
 		send((*it)->fd, buffer.c_str(), buffer.size(), 0);
 	}
 	for (std::vector<client *>::iterator it = w_chanel.admin.begin(); it != w_chanel.admin.end(); it++){
 		out += "@" + get_only_name((*it)->nick) + " ";
-		buffer = ":" + user + " JOIN :" + w_chanel.name + "\n";
+		buffer = ":" + w_client.nick + "!" + w_client.user + " JOIN :" + w_chanel.name + "\n";
 		send((*it)->fd, buffer.c_str(), buffer.size(), 0);
 	}
 	return out;
@@ -41,7 +41,7 @@ static void	join_send_first(int fd, std::string arg, client *w_client){
 
 static void join_send(int fd, std::string arg, client *w_client, Chanel w_chanel){
 	//get names list
-	std::string buffer = ": 353 " + get_only_name(w_client->nick) + " = " + arg + " :" + get_user(w_chanel, get_only_name(w_client->nick)) + "\n";
+	std::string buffer = ": 353 " + get_only_name(w_client->nick) + " = " + arg + " :" + get_user(w_chanel, *w_client) + "\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
 	buffer = ": 366 " + get_only_name(w_client->nick) + " " + arg + " :End of /NAMES list\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
