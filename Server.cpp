@@ -70,7 +70,7 @@ void Server::get_msgs(int fd_client, char *buf)
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 5:
-			//MODE
+			cmd_mode(this->_client_msgs[fd_client].erase(0, cmd[5].size()), this->_clients[fd_client], this);
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 6:

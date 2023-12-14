@@ -128,3 +128,4 @@ void	not_on_chanel(int fd, std::string arg, client *w_client){
 	std::string buffer = ": 442 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :You're not on that channel\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
 }
+

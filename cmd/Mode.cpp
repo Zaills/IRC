@@ -12,7 +12,29 @@
 
 #include "CMD_Utils.hpp"
 
-void	cmd_mode(std::string arg, client *w_client, Server *Server){
+// static void	mode_t(std::string type, client *w_client, Server *server){
+
+// }
+
+void	send_mode(client *w_client, Chanel w_chanel) {
+	std::cout << "HEllo "<< std::endl;
+	std::string buffer;
+	if (w_chanel.m_t)
+		buffer += "t";
+	if (w_chanel.invite)
+		buffer += "i";
+	if (w_chanel.invite)
+		buffer += "l";
+	//add the check
+
+	if (buffer.empty())
+		return;
+	buffer += "\n";
+	buffer = ": MODE " + w_chanel.name + " +" + buffer;
+	send(w_client->fd, buffer.c_str(), buffer.size(), 0);
+}
+
+void	cmd_mode(std::string arg, client *w_client, Server *server) {
 	std::vector<Chanel *> *v_chanel = server->get_chanel();
 	if (!chanel_exist(get_only_name(arg), *v_chanel)) {
 		no_chanel(w_client->fd, arg, w_client);
@@ -22,30 +44,33 @@ void	cmd_mode(std::string arg, client *w_client, Server *Server){
 	Chanel *w_chanel = get_w_chanel(get_only_name(arg), v_chanel);
 	if (!already_in_chanel(w_client->user, *w_chanel)) {
 		not_on_chanel(w_client->fd, arg, w_client);
-		std::cout << "User: " + w_client->nick + " is not in Chanel: " + get_only_name(arg) << std::endl;
+		std::cout << "User: " + w_client->nick + " is not in Chanel: " + w_chanel->name << std::endl;
+		return;
+	}
+	std::string type = get_2arg(arg, w_chanel->name);
+	std::cout << ">" + type + "< >" + type[1] + "< "<< std::endl;
+	if (get_only_name(type).empty() || get_only_name(type).size() < 1) {
+		send_mode(w_client, *w_chanel);
 		return;
 	}
 	if (!is_admin(*w_client, *w_chanel)){
 		not_op(w_client->fd, arg, w_client);
-		std::cout << "User: " + w_client->nick + " is not Op in Chanel: " + get_only_name(arg) << std::endl;
-		return;
-	}
-	std::string type = get_2arg(arg, w_chanel->name);
-	if (type.empty() || type.size() < 1) {
-		std::string buffe = ": 461 " + w_client->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
-		send(w_client->fd, buffe.c_str(), buffe.size(), 0);
+		std::cout << "User: " + w_client->nick + " is not Op in Chanel: " + w_chanel->name << std::endl;
 		return;
 	}
 	switch (type[1]) {
 		case 'i':
 		break;
 		case 't':
+			w_chanel->m_t = 1;
 		break;
 		case 'k':
 		break;
 		case 'o':
 		break;
 		case 'l':
+		break;
+		default:
 		break;
 	}
 }
