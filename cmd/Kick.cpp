@@ -21,6 +21,7 @@ static std::string get_2arg(std::string arg, std::string ch_name){
 	return arg.erase(0, arg.size());
 }
 
+<<<<<<< HEAD
 static void	no_chanel(int fd, std::string arg, client *w_client) {
 	std::string buffer = ": 403 " + get_only_name(w_client->nick) + " " + get_only_name(arg) + " :No such channel\n";
 	send(fd, buffer.c_str(), buffer.size(), 0);
@@ -36,6 +37,8 @@ static void not_op(int fd, std::string arg, client *w_client){
 	send(fd, buffer.c_str(), buffer.size(), 0);
 }
 
+=======
+>>>>>>> 35d32a7494a8fe917b3ef169eb16fd338bee8163
 static std::string get_reson(std::string arg, std::string ch_name){
 	std::string arg2 = get_2arg(arg, ch_name);
 	arg.erase(0, ch_name.size()+ 1);
@@ -84,16 +87,21 @@ void	cmd_kick(std::string arg, client *w_client, Server *server){
 
 	if (!chanel_exist(get_only_name(arg), *v_chanel)){
 		no_chanel(w_client->fd, arg, w_client);
-		std::cout << "Chanel do not exist" << std::endl;
+		std::cout << "Chanel: " + get_only_name(arg) + " do not exist" << std::endl;
 		return;
 	}
 	Chanel *w_chanel = get_w_chanel(get_only_name(arg), v_chanel);
-	std::string user = get_2arg(arg, w_chanel->name);
+	if (!already_in_chanel(w_client->user, *w_chanel)) {
+		not_on_chanel(w_client->fd, arg, w_client);
+		std::cout << "User: " + w_client->nick + " is not in Chanel: " + get_only_name(arg) << std::endl;
+		return;
+	}
 	if (!is_admin(*w_client, *w_chanel)){
 		not_op(w_client->fd, arg, w_client);
 		std::cout << "User :" + w_client->user + " not an OP" << std::endl;
 		return;
 	}
+	std::string user = get_2arg(arg, w_chanel->name);
 
 	if (user.empty() || !nick_in_chanel(user, *w_chanel)){
 		std::cout << "User: " + user +" not in chanel: "  + w_chanel->name << std::endl;
