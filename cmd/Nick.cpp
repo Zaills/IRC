@@ -45,9 +45,9 @@ void setNick(int fd,std::map<int, client *> _clients, std::map<int, std::string>
 				if (!isalpha((*msgs)[5]))
 					return ERR_ERRONEUSNICKNAME(ptr);
 			}
-			if (!isalnum((*msgs)[i]) && (*msgs)[i] != '[' && (*msgs)[i] != ']' && (*msgs)[i] != '-' &&
+			/* if (!isalnum((*msgs)[i]) && (*msgs)[i] != '[' && (*msgs)[i] != ']' && (*msgs)[i] != '-' &&
 				(*msgs)[i] != '{' && (*msgs)[i] != '}' && (*msgs)[i] != '\\' && (*msgs)[i] != '^' && (*msgs)[i] != '`')
-				return ERR_ERRONEUSNICKNAME(ptr);
+				return ERR_ERRONEUSNICKNAME(ptr); */
 		}
 	}
 	if (msgs->find('\r') == std::string::npos)
