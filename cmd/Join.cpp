@@ -54,8 +54,25 @@ static void bad_name(int fd, std::string arg, client *w_client){
 }
 
 static void	not_invited(client *w_client, Chanel w_chanel) {
-	std::string buffer = ": 473 " + get_only_name(w_client->nick) + " " + w_chanel.name + " :Invalid channel name\n";
+	std::string buffer = ": 473 " + get_only_name(w_client->nick) + " " + w_chanel.name + " :Cannot join channel (+i)\n";
 	send(w_client->fd, buffer.c_str(), buffer.size(), 0);
+}
+
+static std::string get_pass(std::string start)
+{
+	std::string pass;
+	pass = &start[get_only_name(start).size() + 1];
+	if (pass.find('\r') == std::string::npos)
+		pass = pass.substr(0, pass.find('\n'));
+	else
+		pass =  pass.substr(0, pass.find('\n')-1);
+	return pass;
+}
+
+static void ERR_BADCHANNELKEY(Chanel *chanel, client *ptr)
+{
+	std::string buf = ": 475 " + chanel->name + " :Cannot join channel (+k)\n";
+	send(ptr->fd, buf.c_str(), buf.size(), 0);
 }
 
 void	cmd_join(std::string arg, client *w_client, Server *server) {
@@ -76,16 +93,13 @@ void	cmd_join(std::string arg, client *w_client, Server *server) {
 		if (w_chanel->m_i) {
 			not_invited(w_client, *w_chanel);
 		}
-		else if (w_chanel->password != &arg[get_only_name(arg).size() + 2])
-		{
-			std::cout << "NOT THE SAME PASSWORD\n";
-			return ;
-		}
-		else if (!already_in_chanel(w_client->user, *w_chanel)) {
+		else if (!already_in_chanel(w_client->user, *w_chanel) && w_chanel->password == get_pass(arg)) {
 			w_chanel->user.push_back(w_client);
 			std::cout << "user: " + w_client->user +" joined chanel: "  + w_chanel->name << std::endl;
 			join_send(w_client->fd, w_client, *w_chanel);
 		}
+		else if (w_chanel->password != get_pass(arg))
+			return ERR_BADCHANNELKEY(w_chanel, w_client);
 		else
 			std::cout << "user: " +  w_client->user +" already in chanel: "  + w_chanel->name << std::endl;
 	}
