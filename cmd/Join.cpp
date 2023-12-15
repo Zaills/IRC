@@ -76,6 +76,11 @@ void	cmd_join(std::string arg, client *w_client, Server *server) {
 		if (w_chanel->m_i) {
 			not_invited(w_client, *w_chanel);
 		}
+		else if (w_chanel->password != &arg[get_only_name(arg).size() + 2])
+		{
+			std::cout << "NOT THE SAME PASSWORD\n";
+			return ;
+		}
 		else if (!already_in_chanel(w_client->user, *w_chanel)) {
 			w_chanel->user.push_back(w_client);
 			std::cout << "user: " + w_client->user +" joined chanel: "  + w_chanel->name << std::endl;
