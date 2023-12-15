@@ -6,7 +6,7 @@ static void ERR_NORECIPIENT(client *ptr, std::string cmd_name)
 	send(ptr->fd, buf.c_str(), buf.size(), 0);
 }
 
-static void ERR_NOSUCHNICK(std::string name, int fd)
+void ERR_NOSUCHNICK(std::string name, int fd)
 {
 	std::string buf =": 401 ERR_NOSUCHNICK " + name + " :No such nick/channel\n";
 	send(fd, buf.c_str(), buf.size(), 0);

@@ -12,11 +12,15 @@
 
 #include "CMD_Utils.hpp"
 
-static void	mode_k(std::string type, Chanel *w_chanel)
+static void	mode_k(std::string type, Chanel *w_chanel, client *ptr)
 {
 	if (type[0] == '-')
 		w_chanel->password.clear();
-	else if (type.find('\r') != std::string::npos){ //hexchat
+	if (type.size() == 3 && type.find("\r") == std::string::npos) //nc nothinh
+		return ERR_NEEDMOREPARAMS(ptr);
+	if (type.size() == 4 && type.find("\r") == 2) //hexchat nothing
+		return ERR_NEEDMOREPARAMS(ptr);
+	if (type.find('\r') != std::string::npos){ //hexchat
 		w_chanel->password = type.substr(3,type.size()-5);
 	}
 	else{
@@ -26,36 +30,23 @@ static void	mode_k(std::string type, Chanel *w_chanel)
 
 static void mode_o(std::string type, Chanel *w_chanel, client *sender)
 {
-	bool found = false;
 	std::string nick;
 	client *ptr = NULL;
 	std::vector<client *>::iterator it = w_chanel->user.begin();
-	std::vector<client *>::iterator it_admin = w_chanel->admin.begin();
-	while (it_admin != w_chanel->admin.end())
-	{
-		if ((*it_admin)->nick == sender->nick)
-			found = true;
-		it_admin++;
-	}
-	if (found == false)// une personne non admin ne peux pas executer cette cmd
-		return ;
 	if (type.find('\r') != std::string::npos)
 		nick = type.substr(3, type.size()-5);
 	else
 		nick = type.substr(3, type.size()-4);
-	if (nick.empty()) // pas de nom donner
-	{
-		std::cout << "error\n";
-		return ;
-	}
+	if (nick.empty())
+		return ERR_NEEDMOREPARAMS(sender);
 	while (it != w_chanel->user.end())
 	{
 		if ((*it)->nick == nick)
 			ptr = (*it);
 		it++;
 	}
-	if (ptr == NULL) // le user existe pas dans le canal
-		return;
+	if (ptr == NULL)
+		return ERR_NOSUCHNICK(nick, sender->fd);
 	if (type[0] == '-')
 		del_admin(w_chanel, nick);
 	else{
@@ -74,15 +65,13 @@ static void mode_l(std::string type, Chanel *w_chanel)
 	else
 		w_chanel->user_limit = strtoul(limit.c_str(), NULL, 0);
 }
-#include <sstream>
+
 void	send_mode(client *w_client, Chanel w_chanel) {
 	std::string buffer;
 	if (w_chanel.m_t)
 		buffer += "t";
 	if (w_chanel.m_i)
 		buffer += "i";
-	//add the check
-
 	if (w_chanel.m_o_added == true)
 		buffer += "o " + w_chanel.admin.back()->nick + " ";
 	if (w_chanel.user_limit_changed == true)
@@ -95,7 +84,6 @@ void	send_mode(client *w_client, Chanel w_chanel) {
 		buffer += "k " + w_chanel.password + " ";
 	buffer += "\n";
 	buffer = ": MODE " + w_chanel.name + " +" + buffer;
-	std::cout << "salut:" << buffer << std::endl;
 	send(w_client->fd, buffer.c_str(), buffer.size(), 0);
 }
 
@@ -136,7 +124,7 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 				w_chanel->m_t = 0;
 		break;
 		case 'k':
-			mode_k(type, w_chanel);
+			mode_k(type, w_chanel, w_client);
 			send_mode(w_client, (*w_chanel));
 			break;
 		case 'o':
