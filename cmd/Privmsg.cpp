@@ -30,7 +30,7 @@ static void send_to_channel(int fd, std::vector<Chanel *> _chanels, std::string 
 	std::vector<client *>::const_iterator it_user;
 	std::vector<client *>::const_iterator it_admin;
 	std::string buf;
-	Chanel *ptr;
+	Chanel *ptr = NULL;
 	while (it_chan != _chanels.end())
 	{
 		if ((*it_chan)->name == recv)

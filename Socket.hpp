@@ -25,7 +25,6 @@
 # include <sys/socket.h>
 # include <sys/types.h>
 # include <unistd.h>
-# define PORT 8080
 # include <exception>
 # include "Server.hpp"
 
@@ -43,9 +42,10 @@ private:
 	Server				server;
 	Socket(const Socket&);
 	Socket operator=(const Socket&);
+	Socket();
 
 public:
-	Socket();
+	Socket(int port, std::string pass);
 	~Socket();
 
 	void		run();

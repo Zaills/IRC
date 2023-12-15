@@ -72,6 +72,8 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 		case 'l':
 		break;
 		default:
+			std::string buf = ": 461 " + w_client->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
+			send(w_client->fd, buf.c_str(), buf.size(), 0);
 		break;
 	}
 }
