@@ -43,9 +43,10 @@ private:
 	Server				server;
 	Socket(const Socket&);
 	Socket operator=(const Socket&);
+	Socket();
 
 public:
-	Socket();
+	Socket(int port, std::string pass);
 	~Socket();
 
 	void		run();

@@ -3,15 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nmorandi <nmorandi@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rvinour <rvinour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/12/11 14:24:34 by nmorandi         ###   ########.fr       */
+/*   Updated: 2023/12/15 14:19:27 by rvinour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// Server side C/C++ program to demonstrate Socket
-// programming
 #include "Socket.hpp"
 #include <cstdlib>
 #include <iostream>
@@ -41,12 +39,22 @@ void	sig_handling(int sig)
 	stop = true;
 }
 
-int main(void)
+int main(int ac, char**av)
 {
+	if (ac != 3){
+		std::cout << "Error: Wrong number of arg" <<std::endl;
+		std::cout << "Should be :./ircserv <port> <password>" <<std::endl;
+		return 1;
+	}
+	if (parse(ac, av) == -1){
+		std::cout << "Error: Wrong port" <<std::endl;
+		std::cout << "Should be :./ircserv <port> <password>" <<std::endl;
+		return 1;
+	}
 	stop = false;
 	signal(SIGINT,sig_handling);
 	try {
-		Socket Sck;
+		Socket Sck(atoi(av[1]), std::string(av[2]));
 		Sck.run();
 	} catch (std::exception &e) {
 		std::cout << e.what() << std::endl;
