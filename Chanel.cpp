@@ -21,8 +21,8 @@ Chanel	creat_chanel(std::string name, std::string password, client *admin)
 	new_chanel.topic = "";
 	new_chanel.password = password;
 	new_chanel.user_limit = 0;
-	new_chanel.invite = false;
-	new_chanel.m_t = false;
+	new_chanel.m_i = false;
+	new_chanel.m_t = true;
 	new_chanel.admin.push_back(admin);
 	return (new_chanel);
 }
@@ -45,11 +45,3 @@ void	del_admin(Chanel *chanel, std::string admin) {
 	}
 }
 
-void	del_invited(Chanel *chanel, std::string invited) {
-	for (std::vector<std::string>::iterator it = chanel->invited.begin(); it != chanel->invited.end(); it++) {
-		if ((*it) == invited){
-			chanel->invited.erase(it);
-			return;
-		}
-	}
-}

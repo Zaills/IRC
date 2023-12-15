@@ -53,6 +53,11 @@ static void bad_name(int fd, std::string arg, client *w_client){
 	send(fd, buffer.c_str(), buffer.size(), 0);
 }
 
+static void	not_invited(client *w_client, Chanel w_chanel) {
+	std::string buffer = ": 473 " + get_only_name(w_client->nick) + " " + w_chanel.name + " :Invalid channel name\n";
+	send(w_client->fd, buffer.c_str(), buffer.size(), 0);
+}
+
 void	cmd_join(std::string arg, client *w_client, Server *server) {
 	std::vector<Chanel *> *v_chanel = server->get_chanel();
 	if (arg[0] != '#' && arg[0] != '&'){
@@ -68,16 +73,19 @@ void	cmd_join(std::string arg, client *w_client, Server *server) {
 	}
 	else {
 		Chanel *w_chanel = get_w_chanel(get_only_name(arg), v_chanel);
-		if (!already_in_chanel(w_client->user, *w_chanel)) {
+		if (already_in_chanel(w_client->user, *w_chanel)) {
+			std::cout << "user: " +  w_client->user +" already in chanel: "  + w_chanel->name << std::endl;
+		}
+		else if (w_chanel->m_i && !server->isInvited(w_chanel->name, w_client->nick)) {
+			not_invited(w_client, *w_chanel);
+			std::cout << "user: " +  w_client->user +" not invited in Chanel: "  + w_chanel->name << std::endl;
+		}
+		else {
+			if (w_chanel->m_i && server->isInvited(w_chanel->name, w_client->nick))
+				server->delInvited(w_chanel->name, w_client->nick);
 			w_chanel->user.push_back(w_client);
 			std::cout << "user: " + w_client->user +" joined chanel: "  + w_chanel->name << std::endl;
 			join_send(w_client->fd, w_client, *w_chanel);
 		}
-		else{
-			std::cout << "user: " +  w_client->user +" already in chanel: "  + w_chanel->name << std::endl;
-			return;
-		}
 	}
 }
-
-//nb max chanel
