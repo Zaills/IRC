@@ -137,7 +137,7 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 		break;
 		case 'k':
 			mode_k(type, w_chanel, w_client);
-			send_mode(w_client, (*w_chanel));
+			send_to_all_in_chan(w_chanel);
 			break;
 		case 'o':
 			mode_o(type, w_chanel, w_client);
@@ -146,7 +146,7 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 		break;
 		case 'l':
 			mode_l(type, w_chanel);
-			send_mode(w_client, (*w_chanel));
+			send_to_all_in_chan(w_chanel);
 			w_chanel->user_limit_changed = false;
 		break;
 		default:
