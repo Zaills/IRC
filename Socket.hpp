@@ -25,7 +25,6 @@
 # include <sys/socket.h>
 # include <sys/types.h>
 # include <unistd.h>
-# define PORT 8080
 # include <exception>
 # include "Server.hpp"
 
