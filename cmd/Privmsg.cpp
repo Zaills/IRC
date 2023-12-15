@@ -18,12 +18,6 @@ static void ERR_NOTEXTTOSEND(client *ptr)
 	send(ptr->fd, buf.c_str(), buf.size(), 0);
 }
 
-/* static void ERR_CANNOTSENDTOCHAN(client *ptr, std::string chan_name)
-{
-	std::string buf =": 404 ERR_CANNOTSENDTOCHAN" + chan_name + " :Cannot send to channel\n";
-	send(ptr->fd, buf.c_str(), buf.size(), 0);
-} */
-
 static void send_to_channel(int fd, std::vector<Chanel *> _chanels, std::string text, std::string recv, std::string sender)
 {
 	std::vector<Chanel *>::const_iterator it_chan = _chanels.begin();
@@ -70,7 +64,6 @@ void privmsg(int fd, std::map<int, client *> _clients, std::map<int, std::string
 	std::map<int, client*>::const_iterator it = _clients.begin();
 	std::vector<Chanel *>::const_iterator it_chan = _chanels.begin();
 	bool user = false, chanel = false;
-	//NEED ERR_CANNOTSENDTOCHAN (le mode doit etre fait avant)
 	if (receiver.find("\n") != std::string::npos)
 		receiver.erase(receiver.size()-1,receiver.size());
 	if (receiver[0] == '\r' && receiver.size() == 1)

@@ -12,19 +12,13 @@
 
 #include "CMD_Utils.hpp"
 
-static void	mode_k(std::string type, Chanel *w_chanel, client *ptr)
+static void send_to_all_in_chan(Chanel *w_chanel)
 {
-	if (type[0] == '-')
-		w_chanel->password.clear();
-	if (type.size() == 3 && type.find("\r") == std::string::npos) //nc nothinh
-		return ERR_NEEDMOREPARAMS(ptr);
-	if (type.size() == 4 && type.find("\r") == 2) //hexchat nothing
-		return ERR_NEEDMOREPARAMS(ptr);
-	if (type.find('\r') != std::string::npos){ //hexchat
-		w_chanel->password = type.substr(3,type.size()-5);
+	for (std::vector<client *>::iterator it = w_chanel->user.begin(); it != w_chanel->user.end(); it++){
+		send_mode((*it), (*w_chanel));
 	}
-	else{
-		w_chanel->password = type.substr(3,type.size()-4); //nc
+	for (std::vector<client *>::iterator it = w_chanel->admin.begin(); it != w_chanel->admin.end(); it++){
+		send_mode((*it), (*w_chanel));
 	}
 }
 
@@ -56,6 +50,22 @@ static void mode_o(std::string type, Chanel *w_chanel, client *sender)
 	}
 }
 
+static void	mode_k(std::string type, Chanel *w_chanel, client *ptr)
+{
+	if (type[0] == '-')
+		w_chanel->password.clear();
+	if (type.size() == 3 && type.find("\r") == std::string::npos) //nc nothinh
+		return ERR_NEEDMOREPARAMS(ptr);
+	if (type.size() == 4 && type.find("\r") == 2) //hexchat nothing
+		return ERR_NEEDMOREPARAMS(ptr);
+	if (type.find('\r') != std::string::npos){ //hexchat
+		w_chanel->password = type.substr(3,type.size()-5);
+	}
+	else{
+		w_chanel->password = type.substr(3,type.size()-4); //nc
+	}
+}
+
 static void mode_l(std::string type, Chanel *w_chanel)
 {
 	std::string limit = &type[3];
@@ -64,6 +74,8 @@ static void mode_l(std::string type, Chanel *w_chanel)
 		w_chanel->user_limit = 0;
 	else
 		w_chanel->user_limit = strtoul(limit.c_str(), NULL, 0);
+	if (limit[0] == '-')
+		w_chanel->user_limit = 0;
 }
 
 void	send_mode(client *w_client, Chanel w_chanel) {
@@ -129,7 +141,7 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 			break;
 		case 'o':
 			mode_o(type, w_chanel, w_client);
-			send_mode(w_client, (*w_chanel));
+			send_to_all_in_chan(w_chanel);
 			w_chanel->m_o_added = false;
 		break;
 		case 'l':
