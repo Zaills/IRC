@@ -6,7 +6,7 @@
 /*   By: rvinour <rvinour@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/27 11:20:13 by rvinour           #+#    #+#             */
-/*   Updated: 2023/12/15 14:19:27 by rvinour          ###   ########.fr       */
+/*   Updated: 2023/12/15 14:31:35 by rvinour          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ int main(int ac, char**av)
 		Socket Sck(atoi(av[1]), std::string(av[2]));
 		Sck.run();
 	} catch (std::exception &e) {
-		std::cout << e.what() << std::endl;
+		std::cout << "IRCServer Error: " << e.what() << std::endl;
 	}
 	return 0;
 }
