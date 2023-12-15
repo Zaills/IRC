@@ -31,7 +31,7 @@ typedef struct s_chanel{
 	bool	m_i;
 	bool	m_t;
 	bool	m_o_added;
-
+	bool	user_limit_changed;
 }	Chanel;
 
 Chanel	creat_chanel(std::string name, std::string password, client *admin);
