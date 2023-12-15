@@ -6,7 +6,7 @@
 #    By: marvin <marvin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/11/27 14:42:21 by rvinour           #+#    #+#              #
-#    Updated: 2023/12/14 14:14:57 by marvin           ###   ########.fr        #
+#    Updated: 2023/12/14 17:08:42 by marvin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,8 @@ SRC = main.cpp \
 		cmd/Nick.cpp\
 		cmd/Pass.cpp\
 		cmd/User.cpp\
-		cmd/Mode.cpp
+		cmd/Mode.cpp\
+		cmd/Invite.cpp
 
 OBJ = $(SRC:.cpp=.o)
 

@@ -45,11 +45,3 @@ void	del_admin(Chanel *chanel, std::string admin) {
 	}
 }
 
-void	del_invited(Chanel *chanel, std::string invited) {
-	for (std::vector<std::string>::iterator it = chanel->invited.begin(); it != chanel->invited.end(); it++) {
-		if ((*it) == invited){
-			chanel->invited.erase(it);
-			return;
-		}
-	}
-}

@@ -22,6 +22,7 @@ Server::~Server()
 			delete (*it2);
 		it2++;
 	}
+
 }
 
 void Server::get_msgs(int fd_client, char *buf)
@@ -62,7 +63,7 @@ void Server::get_msgs(int fd_client, char *buf)
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 3:
-			//INVITE
+			cmd_invite(this->_client_msgs[fd_client].erase(0, cmd[3].size()), this->_clients[fd_client], this);
 			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 4:
@@ -150,4 +151,18 @@ std::vector<Chanel *> *Server::get_chanel(){
 
 void	Server::new_chanel(Chanel *chanel){
 	this->_chanels.push_back(chanel);
+}
+
+void	Server::addInvited(std::string key, std::string value) {
+	this->_invited[key].push_back(value);
+}
+
+void	Server::delInvited(std::string key, std::string value) {
+	std::vector<std::string> &v_inv = this->_invited[key];
+	v_inv.erase(std::remove(v_inv.begin(), v_inv.end(), value), v_inv.end());
+}
+
+bool	Server::isInvited(std::string key, std::string value){
+	std::vector<std::string> v_inv = this->_invited[key];
+	return std::find(v_inv.begin(), v_inv.end(), value) != v_inv.end();
 }
