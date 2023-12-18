@@ -6,12 +6,6 @@ static void ERR_ALREADYREGISTRED(client *ptr)
 	send(ptr->fd, buf.c_str(), buf.size(),0);
 }
 
-static void ERR_NEEDMOREPARAMS(client *ptr)
-{
-	std::string buf = ": 461 " + ptr->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
-	send(ptr->fd, buf.c_str(), buf.size(), 0);
-}
-
 void setUser(int fd, std::map<int, client *> _clients, std::map<int, std::string> _client_msgs, std::string password)
 {
 	client *ptr = _clients.at(fd);

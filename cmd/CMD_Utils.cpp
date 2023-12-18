@@ -129,3 +129,4 @@ void	not_on_chanel(int fd, std::string arg, client *w_client){
 	send(fd, buffer.c_str(), buffer.size(), 0);
 }
 
+

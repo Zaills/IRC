@@ -14,6 +14,8 @@
 #define CMD_UTILS_CPP
 
 # include "../Server.hpp"
+# include <stdlib.h>
+# include <sstream>
 
 bool	chanel_exist(std::string chanel_name, std::vector<Chanel *> v_chanel);
 Chanel	*get_w_chanel(std::string chanel_name, std::vector<Chanel *> *v_chanel);
@@ -33,5 +35,8 @@ void	not_op(int fd, std::string arg, client *w_client);
 void	not_on_chanel(int fd, std::string arg, client *w_client);
 void	send_topic(client *w_client, Chanel w_chanel);
 void	send_mode(client *w_client, Chanel w_chanel);
+
+void	ERR_NOSUCHNICK(std::string name, int fd);
+void	ERR_NEEDMOREPARAMS(client *ptr);
 
 #endif

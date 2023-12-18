@@ -6,7 +6,7 @@ static void ERR_PASSWDMISMATCH(client *ptr)
 	send(ptr->fd, buf.c_str(), buf.size(), 0);
 }
 
-static void ERR_NEEDMOREPARAMS(client *ptr)
+void ERR_NEEDMOREPARAMS(client *ptr)
 {
 	std::string buf = ": 461 " + ptr->nick + " ERR_NEEDMOREPARAMS :Not enough parameters\n";
 	send(ptr->fd, buf.c_str(), buf.size(), 0);

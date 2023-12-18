@@ -28,6 +28,9 @@ void setNick(int fd,std::map<int, client *> _clients, std::map<int, std::string>
 {
 	client *ptr = _clients.at(fd);
 	std::string *msgs = &(_client_msgs.at(fd));
+	int size = msgs->find("\n") - 1;
+	if (msgs->find('\r') != std::string::npos)
+		size--;
 	if (ptr->password != password)
 		return ;
 	else if (ptr->nick.empty() == false)
@@ -37,19 +40,9 @@ void setNick(int fd,std::map<int, client *> _clients, std::map<int, std::string>
 	else if (check_empty((*msgs)) == -1)
 		return ERR_NONICKNAMEGIVEN(ptr);
 	else
-	{
-		for (size_t i = 5; i < msgs->size(); i++)
-		{
-			if (i == 5)
-			{
-				if (!isalpha((*msgs)[5]))
-					return ERR_ERRONEUSNICKNAME(ptr);
-			}
-			/* if (!isalnum((*msgs)[i]) && (*msgs)[i] != '[' && (*msgs)[i] != ']' && (*msgs)[i] != '-' &&
-				(*msgs)[i] != '{' && (*msgs)[i] != '}' && (*msgs)[i] != '\\' && (*msgs)[i] != '^' && (*msgs)[i] != '`')
-				return ERR_ERRONEUSNICKNAME(ptr);*/
-		}
-	}
+		for (int i = 5; i < size; i++)
+			if (!isalnum((*msgs)[i]))
+				return ERR_ERRONEUSNICKNAME(ptr);
 	if (msgs->find('\r') == std::string::npos)
 		ptr->nick = msgs->substr(5, msgs->find('\n')-5);
 	else
