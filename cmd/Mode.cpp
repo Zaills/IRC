@@ -12,26 +12,11 @@
 
 #include "CMD_Utils.hpp"
 
-static void send_to_all_in_chan(Chanel *w_chanel)
-{
-	for (std::vector<client *>::iterator it = w_chanel->user.begin(); it != w_chanel->user.end(); it++){
-		send_mode((*it), (*w_chanel));
-	}
-	for (std::vector<client *>::iterator it = w_chanel->admin.begin(); it != w_chanel->admin.end(); it++){
-		send_mode((*it), (*w_chanel));
-	}
-}
-
-static void rm_ops(Chanel *w_chanel, std::string nick)
-{
-	std::string buf;
-	buf = ": MODE " + w_chanel->name + " -o " + nick + "\n";
-	for (std::vector<client *>::iterator it = w_chanel->user.begin(); it != w_chanel->user.end(); it++){
-		send((*it)->fd, buf.c_str(), buf.size(), 0);
-	}
-	for (std::vector<client *>::iterator it = w_chanel->admin.begin(); it != w_chanel->admin.end(); it++){
-		send((*it)->fd, buf.c_str(), buf.size(), 0);
-	}
+static void	send_mode_all(Chanel w_chanel, std::string buffer){
+	for (std::vector<client *>::iterator it = w_chanel.user.begin(); it != w_chanel.user.end(); it++)
+		send((*it)->fd, buffer.c_str(), buffer.size(), 0);
+	for (std::vector<client *>::iterator it = w_chanel.admin.begin(); it != w_chanel.admin.end(); it++)
+		send((*it)->fd, buffer.c_str(), buffer.size(), 0);
 }
 
 static void mode_o(std::string type, Chanel *w_chanel, client *sender)
@@ -57,7 +42,9 @@ static void mode_o(std::string type, Chanel *w_chanel, client *sender)
 			return ERR_NOSUCHNICK(nick, sender->fd);
 		del_admin(w_chanel, nick);
 		w_chanel->user.push_back(ptr);
-		rm_ops(w_chanel, nick);
+		std::string buf;
+		buf = ": MODE " + w_chanel->name + " -o " + nick + "\n";
+		send_mode_all((*w_chanel), buf);
 	}
 	else{
 		std::vector<client *>::iterator it = w_chanel->user.begin();
@@ -71,14 +58,22 @@ static void mode_o(std::string type, Chanel *w_chanel, client *sender)
 			return ERR_NOSUCHNICK(nick, sender->fd);
 		w_chanel->admin.push_back(ptr);
 		del_user(w_chanel, nick);
-		w_chanel->m_o_added = true;
+		std::string buf;
+		buf = ": MODE " + w_chanel->name + " +o " + nick + "\n";
+		send_mode_all((*w_chanel), buf);
 	}
 }
 
 static void	mode_k(std::string type, Chanel *w_chanel, client *ptr)
 {
 	if (type[0] == '-')
+	{
 		w_chanel->password.clear();
+		std::string buf;
+		buf = ": MODE " + w_chanel->name + " -k\n";
+		send_mode_all((*w_chanel), buf);
+		return ;
+	}
 	if (type.size() == 3 && type.find("\r") == std::string::npos) //nc nothinh
 		return ERR_NEEDMOREPARAMS(ptr);
 	if (type.size() == 4 && type.find("\r") == 2) //hexchat nothing
@@ -87,6 +82,9 @@ static void	mode_k(std::string type, Chanel *w_chanel, client *ptr)
 		w_chanel->password = type.substr(3,type.size()-5);
 	else
 		w_chanel->password = type.substr(3,type.size()-4); //nc
+	std::string buf;
+	buf = ": MODE " + w_chanel->name + " +k " + w_chanel->password + "\n";
+	send_mode_all((*w_chanel), buf);
 }
 
 static void mode_l(std::string type, Chanel *w_chanel)
@@ -94,9 +92,21 @@ static void mode_l(std::string type, Chanel *w_chanel)
 	std::string limit = &type[3];
 	w_chanel->user_limit_changed = true;
 	if (type[0] == '-')
-		w_chanel->user_limit = 0;
+	{
+		std::string buf;
+		buf = ": MODE " + w_chanel->name + " -l\n";
+		send_mode_all((*w_chanel), buf);
+	}
 	else
+	{
 		w_chanel->user_limit = strtoul(limit.c_str(), NULL, 0);
+		std::string buf;
+		std::stringstream ss;
+		ss << w_chanel->user_limit;
+		buf = ": MODE " + w_chanel->name + " +l " + ss.str() + "\n";
+		send_mode_all((*w_chanel), buf);
+		w_chanel->user_limit = 0;
+	}
 	if (limit[0] == '-')
 		w_chanel->user_limit = 0;
 }
@@ -160,16 +170,13 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 		break;
 		case 'k':
 			mode_k(type, w_chanel, w_client);
-			send_to_all_in_chan(w_chanel);
 			break;
 		case 'o':
 			mode_o(type, w_chanel, w_client);
-			send_to_all_in_chan(w_chanel);
 			w_chanel->m_o_added = false;
 		break;
 		case 'l':
 			mode_l(type, w_chanel);
-			send_to_all_in_chan(w_chanel);
 			w_chanel->user_limit_changed = false;
 		break;
 		default:
