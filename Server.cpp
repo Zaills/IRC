@@ -24,6 +24,12 @@ Server::~Server()
 	}
 }
 
+static void ERR_NOTREGISTERED(client *ptr)
+{
+	std::string buf = ": 451 " + ptr->nick + " ERR_NOTREGISTERED :You have not registered\n";
+	send(ptr->fd, buf.c_str(), buf.size(),0);
+}
+
 void Server::get_msgs(int fd_client, char *buf)
 {
 	std::string temp = buf;
@@ -46,6 +52,11 @@ void Server::get_msgs(int fd_client, char *buf)
 				id = i;
 				break;
 			}
+		}
+		if (id > 2 && this->_clients[fd_client]->is_logged == false && id != 999)
+		{
+			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			return ERR_NOTREGISTERED(this->_clients[fd_client]);
 		}
 		switch (id)
 		{

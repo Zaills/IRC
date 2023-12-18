@@ -24,7 +24,7 @@ static void send_to_channel(int fd, std::vector<Chanel *> _chanels, std::string 
 	std::vector<client *>::const_iterator it_user;
 	std::vector<client *>::const_iterator it_admin;
 	std::string buf;
-	Chanel *ptr;
+	Chanel *ptr = NULL;
 	while (it_chan != _chanels.end())
 	{
 		if ((*it_chan)->name == recv)
@@ -34,6 +34,8 @@ static void send_to_channel(int fd, std::vector<Chanel *> _chanels, std::string 
 		}
 		it_chan++;
 	}
+	if (ptr == NULL)
+		return ;
 	it_user = ptr->user.begin();
 	it_admin = ptr->admin.begin();
 	while (it_user != ptr->user.end())
@@ -100,26 +102,3 @@ void privmsg(int fd, std::map<int, client *> _clients, std::map<int, std::string
 	std::string buf =":" + _clients.at(fd)->nick + "!" + _clients.at(fd)->user + " PRIVMSG " + receiver + " :" + text;
 	send((*it).second->fd, buf.c_str(), buf.size(),0);
 }
-
-//		c est pour $privmsg et #privmsg peut etre pas a gerer
-
-/*
-414 ERR_WILDTOPLEVEL
-"<masque> :Wildcard in toplevel domain"
- */
-//
-/*
-413 ERR_NOTOPLEVEL
-"<masque> :No toplevel domain specified"
- */
-
-
-//		utilisateur@hôte pour lequel utilisateur@hôte a plusieurs occurrences (peut etre pas a gerer egalement)
-
-/* 407 ERR_TOOMANYTARGETS
-"<destination> :Duplicate recipients. No message delivered"
- */
-
-
-
-
