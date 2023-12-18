@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "CMD_Utils.hpp"
+#include <iostream>
 
 static std::string get_reson(std::string arg, std::string ch_name){
 	std::string arg2 = get_only_name(get_2arg(arg, ch_name));
@@ -30,6 +31,7 @@ static std::string get_reson(std::string arg, std::string ch_name){
 static void kick(std::string arg, client *w_client, Chanel w_chanel){
 	std::string reson = get_reson(arg, w_chanel.name);
 	std::string buffer;
+	std::cout << "Op: " + get_only_name(w_client->nick) + " kicked: " + get_only_name(get_2arg(arg, w_chanel.name)) << std::endl;
 	if (reson.empty())
 		buffer = ":" + get_only_name(w_client->nick) + "!" + get_only_name(w_client->user) + " KICK " + w_chanel.name +  " " + get_only_name(get_2arg(arg, w_chanel.name)) + " :No reason given\n";
 	else
@@ -56,7 +58,6 @@ static bool	nick_in_chanel(std::string name, Chanel w_chanel) {
 
 void	cmd_kick(std::string arg, client *w_client, Server *server){
 	std::vector<Chanel *> *v_chanel = server->get_chanel();
-
 
 	if (!chanel_exist(get_only_name(arg), *v_chanel)){
 		no_chanel(w_client->fd, arg, w_client);

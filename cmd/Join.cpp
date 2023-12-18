@@ -71,8 +71,14 @@ static std::string get_pass(std::string start)
 
 static void ERR_BADCHANNELKEY(Chanel *chanel, client *ptr)
 {
-	std::string buf = ": 475 " + chanel->name + " :Cannot join channel (+k)\n";
-	send(ptr->fd, buf.c_str(), buf.size(), 0);
+	std::string buffer = ": 475 " + get_only_name(ptr->nick) + " " + chanel->name + " :Cannot join channel (+k)\n";
+	send(ptr->fd, buffer.c_str(), buffer.size(), 0);
+}
+
+static void ERR_CHANNELISFULL(Chanel *chanel, client *ptr)
+{
+	std::string buffer = ": 471 " + get_only_name(ptr->nick) + " " + chanel->name + " :Cannot join channel (+l)\n";
+	send(ptr->fd, buffer.c_str(), buffer.size(), 0);
 }
 
 void	cmd_join(std::string arg, client *w_client, Server *server) {
@@ -92,22 +98,26 @@ void	cmd_join(std::string arg, client *w_client, Server *server) {
 		Chanel *w_chanel = get_w_chanel(get_only_name(arg), v_chanel);
 		if (already_in_chanel(w_client->user, *w_chanel)) {
 			std::cout << "user: " +  w_client->user +" already in chanel: "  + w_chanel->name << std::endl;
+			return;
 		}
 		else if (w_chanel->m_i && !server->isInvited(w_chanel->name, w_client->nick)) {
 			not_invited(w_client, *w_chanel);
 			std::cout << "user: " +  w_client->user +" not invited in Chanel: "  + w_chanel->name << std::endl;
+			return;
 		}
-		else if (w_chanel->password == get_pass(arg)){
+		else if (w_chanel->password == get_pass(arg) && (w_chanel->user_limit == 0 || w_chanel->user.size() + w_chanel->admin.size() < w_chanel->user_limit)){
 			if (w_chanel->m_i && server->isInvited(w_chanel->name, w_client->nick))
 				server->delInvited(w_chanel->name, w_client->nick);
+			std::cout << w_chanel->user_limit << std::endl;
+			std::cout << w_chanel->user.size() + w_chanel->admin.size() << std::endl;
 			w_chanel->user.push_back(w_client);
 			std::cout << "user: " + w_client->user +" joined chanel: "  + w_chanel->name << std::endl;
 			join_send(w_client->fd, w_client, *w_chanel);
+			return;
 		}
-		else if (w_chanel->password != get_pass(arg))
+		if (w_chanel->password != get_pass(arg))
 			return ERR_BADCHANNELKEY(w_chanel, w_client);
-		else
-			std::cout << "user: " +  w_client->user +" already in chanel: "  + w_chanel->name << std::endl;
-
+		if (w_chanel->user_limit && w_chanel->user.size() + w_chanel->admin.size() >= w_chanel->user_limit)
+			return ERR_CHANNELISFULL(w_chanel, w_client);
 	}
 }

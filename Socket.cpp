@@ -45,23 +45,19 @@ void Socket::run(){
 		exit(EXIT_FAILURE);
 	}
 
-	//init master fd
 	FD_ZERO(&this->master_set);
 	this->max_fd = this->server_fd;
 	FD_SET(this->server_fd, &this->master_set);
 
-	//time before stop select
 	timeval	timeout;
 	timeout.tv_sec = 800000;
 	timeout.tv_usec = 0;
 	int	rc, len, close_conn;
 	int	desc_r;
+
 	do {
-		//seting the fd I want to read
 		memcpy(&working_set, &this->master_set, sizeof(this->master_set));
 
-		//select on working_set
-		std::cout << std::endl << "Waiting on select..." << std::endl;
 		rc = select(this->max_fd + 1, &working_set, NULL, NULL, &timeout);
 		if (rc < 0) {
 			perror("select");
@@ -71,53 +67,39 @@ void Socket::run(){
 			std::cout << "Select timed out." << std::endl;
 			break;
 		}
-
-		//looking witch fd we need to read
 		desc_r = rc;
 		for (int i = 0; i <= this->max_fd && desc_r > 0; ++i) {
 			if (FD_ISSET(i, &working_set)) {
 				desc_r -=1;
-				//if it's the server fd -> new connection
 				if (i == this->server_fd) {
-					std::cout << "Server Socket is readable" << std::endl;
 						if ((new_sd = accept(this->server_fd, NULL, NULL)) < 0) {
 							perror("accept");
 							stop = true;
 							break;
 						}
-						//std::cout << "New connection: " << new_sd << std::endl;
-						server.addClient(new_sd); // ajoute le client dans la map<fd, struct>
+						server.addClient(new_sd);
 						FD_SET(new_sd, &this->master_set);
 						if (new_sd > this->max_fd)
 							this->max_fd = new_sd;
 				}
-				else { //if not then it's readable
-					std::cout << "Socket is readable" << std::endl;
+				else {
 					close_conn = false;
 					if ((rc = recv(i, buffer, sizeof(buffer), 0)) < 0){
 						perror("recv");
 						close_conn = true;
 					}
-					if (rc == 0){ //retire de struct
-						//std::cout << "Connection ended" << std::endl;
+					if (rc == 0){
 						server.delChanelClient(i);
 						server.delClient(i);
 						close_conn = true;
 					}
 					if (!close_conn){
-						//echo back to client
 						len = rc;
 						(void) len;
-						//std::cout << "recieved: " << buffer << std::endl;
-						server.get_msgs(i, buffer); //parsing message (for login and commands)
-/* 						if ((rc = send(i, buffer, len, 0)) < 0){  //commented out for login test
-							perror("send");
-							close_conn = true;
-						} */
-						memset(buffer,'\0',1024); //clearing the buffer msgs
+						server.get_msgs(i, buffer);
+						memset(buffer,'\0',1024);
 					}
 
-					//if flag close_conn we need to clean up
 					if (close_conn){
 						close(i);
 						FD_CLR(i, &this->master_set);

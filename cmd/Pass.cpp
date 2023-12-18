@@ -42,6 +42,6 @@ void setPass(int fd, std::map<int, client *> _clients, std::map<int, std::string
 		std::cout << "(hexchat)PASS :" << ptr->password << std::endl;
 		LoggedIn(fd, _clients);
 	}
-	else
+	else if (!password.empty())
 		return ERR_PASSWDMISMATCH(ptr);
 }

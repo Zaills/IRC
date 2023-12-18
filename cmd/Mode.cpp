@@ -92,12 +92,12 @@ static void	mode_k(std::string type, Chanel *w_chanel, client *ptr)
 static void mode_l(std::string type, Chanel *w_chanel)
 {
 	std::string limit = &type[3];
-	w_chanel->user_limit_changed = true;
 	if (type[0] == '-')
 	{
 		std::string buf;
 		buf = ": MODE " + w_chanel->name + " -l\n";
 		send_mode_all((*w_chanel), buf);
+		w_chanel->user_limit = 0;
 	}
 	else
 	{
@@ -107,7 +107,6 @@ static void mode_l(std::string type, Chanel *w_chanel)
 		ss << w_chanel->user_limit;
 		buf = ": MODE " + w_chanel->name + " +l " + ss.str() + "\n";
 		send_mode_all((*w_chanel), buf);
-		w_chanel->user_limit = 0;
 	}
 	if (limit[0] == '-')
 		w_chanel->user_limit = 0;
@@ -115,11 +114,11 @@ static void mode_l(std::string type, Chanel *w_chanel)
 static void modif_t(std::string type, Chanel *w_chanel){
 		std::string buffer;
 	if (type[0] == '+'){
-		buffer = ": MODE " + w_chanel->name + " +t";
+		buffer = ": MODE " + w_chanel->name + " +t\n";
 		w_chanel->m_t = 1;
 	}
 	if (type[0] == '-'){
-		buffer = ": MODE " + w_chanel->name + " -t";
+		buffer = ": MODE " + w_chanel->name + " -t\n";
 		w_chanel->m_t = 0;
 	}
 	send_mode_all(*w_chanel, buffer);
@@ -128,11 +127,11 @@ static void modif_t(std::string type, Chanel *w_chanel){
 static void modif_i(std::string type, Chanel *w_chanel){
 		std::string buffer;
 	if (type[0] == '+'){
-		buffer = ": MODE " + w_chanel->name + " +i";
+		buffer = ": MODE " + w_chanel->name + " +i\n";
 		w_chanel->m_i = 1;
 	}
 	if (type[0] == '-'){
-		buffer = ": MODE " + w_chanel->name + " -i";
+		buffer = ": MODE " + w_chanel->name + " -i\n";
 		w_chanel->m_i = 0;
 	}
 	send_mode_all(*w_chanel, buffer);
@@ -144,14 +143,8 @@ void	send_mode(client *w_client, Chanel w_chanel) {
 		buffer += "t";
 	if (w_chanel.m_i)
 		buffer += "i";
-	if (w_chanel.m_o_added == true)
-		buffer += "o " + w_chanel.admin.back()->nick + " ";
-	if (w_chanel.user_limit_changed == true)
-	{
-		std::stringstream ss;
-		ss << w_chanel.user_limit;
-		buffer += "l " + ss.str() + " ";
-	}
+	if (w_chanel.user_limit)
+			buffer += "l";
 	if (!w_chanel.password.empty())
 		buffer += "k " + w_chanel.password + " ";
 	buffer += "\n";
@@ -194,11 +187,9 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 			break;
 		case 'o':
 			mode_o(type, w_chanel, w_client);
-			w_chanel->m_o_added = false;
 		break;
 		case 'l':
 			mode_l(type, w_chanel);
-			w_chanel->user_limit_changed = false;
 		break;
 		default:
 			std::string buf = ": 501 " + w_client->nick + " ERR_UMODEUNKNOWNFLAG :Unknown MODE flag\n";
