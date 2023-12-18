@@ -83,12 +83,10 @@ static void	mode_k(std::string type, Chanel *w_chanel, client *ptr)
 		return ERR_NEEDMOREPARAMS(ptr);
 	if (type.size() == 4 && type.find("\r") == 2) //hexchat nothing
 		return ERR_NEEDMOREPARAMS(ptr);
-	if (type.find('\r') != std::string::npos){ //hexchat
+	if (type.find('\r') != std::string::npos)
 		w_chanel->password = type.substr(3,type.size()-5);
-	}
-	else{
+	else
 		w_chanel->password = type.substr(3,type.size()-4); //nc
-	}
 }
 
 static void mode_l(std::string type, Chanel *w_chanel)
