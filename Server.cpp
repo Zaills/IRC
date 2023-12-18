@@ -52,44 +52,33 @@ void Server::get_msgs(int fd_client, char *buf)
 		{
 		case 0:
 			setNick(fd_client, this->_clients, this->_client_msgs, this->_password);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 1:
 			setUser(fd_client, this->_clients, this->_client_msgs, this->_password);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 2:
 			setPass(fd_client, this->_clients, this->_client_msgs, this->_password);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 3:
 			cmd_invite(this->_client_msgs[fd_client].erase(0, cmd[3].size()), this->_clients[fd_client], this);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 4:
 			cmd_topic(this->_client_msgs[fd_client].erase(0, cmd[4].size()), this->_clients[fd_client], this);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 5:
 			cmd_mode(this->_client_msgs[fd_client].erase(0, cmd[5].size()), this->_clients[fd_client], this);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 6:
 			cmd_kick(this->_client_msgs[fd_client].erase(0, cmd[6].size()), this->_clients[fd_client], this);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 7:
 			cmd_join(this->_client_msgs[fd_client].erase(0, cmd[7].size()), this->_clients[fd_client], this);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 8:
 			privmsg(fd_client, this->_clients, this->_client_msgs, this->_chanels);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
-			break;
-		default:
-			this->_client_msgs[fd_client].erase(0,this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		}
+	this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 	}
 }
 
