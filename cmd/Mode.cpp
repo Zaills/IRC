@@ -22,28 +22,53 @@ static void send_to_all_in_chan(Chanel *w_chanel)
 	}
 }
 
+static void rm_ops(Chanel *w_chanel, std::string nick)
+{
+	std::string buf;
+	buf = ": MODE " + w_chanel->name + " -o " + nick + "\n";
+	for (std::vector<client *>::iterator it = w_chanel->user.begin(); it != w_chanel->user.end(); it++){
+		send((*it)->fd, buf.c_str(), buf.size(), 0);
+	}
+	for (std::vector<client *>::iterator it = w_chanel->admin.begin(); it != w_chanel->admin.end(); it++){
+		send((*it)->fd, buf.c_str(), buf.size(), 0);
+	}
+}
+
 static void mode_o(std::string type, Chanel *w_chanel, client *sender)
 {
 	std::string nick;
 	client *ptr = NULL;
-	std::vector<client *>::iterator it = w_chanel->user.begin();
 	if (type.find('\r') != std::string::npos)
 		nick = type.substr(3, type.size()-5);
 	else
 		nick = type.substr(3, type.size()-4);
 	if (nick.empty())
 		return ERR_NEEDMOREPARAMS(sender);
-	while (it != w_chanel->user.end())
-	{
-		if ((*it)->nick == nick)
-			ptr = (*it);
-		it++;
-	}
-	if (ptr == NULL)
-		return ERR_NOSUCHNICK(nick, sender->fd);
 	if (type[0] == '-')
+	{
+		std::vector<client *>::iterator it = w_chanel->admin.begin();
+		while (it != w_chanel->admin.end())
+		{
+			if ((*it)->nick == nick)
+				ptr = (*it);
+			it++;
+		}
+		if (ptr == NULL)
+			return ERR_NOSUCHNICK(nick, sender->fd);
 		del_admin(w_chanel, nick);
+		w_chanel->user.push_back(ptr);
+		rm_ops(w_chanel, nick);
+	}
 	else{
+		std::vector<client *>::iterator it = w_chanel->user.begin();
+		while (it != w_chanel->user.end())
+		{
+			if ((*it)->nick == nick)
+				ptr = (*it);
+			it++;
+		}
+		if (ptr == NULL)
+			return ERR_NOSUCHNICK(nick, sender->fd);
 		w_chanel->admin.push_back(ptr);
 		del_user(w_chanel, nick);
 		w_chanel->m_o_added = true;
