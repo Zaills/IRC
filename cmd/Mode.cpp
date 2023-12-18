@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "CMD_Utils.hpp"
+#include <string>
+#include <sys/types.h>
 
 static void	send_mode_all(Chanel w_chanel, std::string buffer){
 	for (std::vector<client *>::iterator it = w_chanel.user.begin(); it != w_chanel.user.end(); it++)
@@ -110,6 +112,31 @@ static void mode_l(std::string type, Chanel *w_chanel)
 	if (limit[0] == '-')
 		w_chanel->user_limit = 0;
 }
+static void modif_t(std::string type, Chanel *w_chanel){
+		std::string buffer;
+	if (type[0] == '+'){
+		buffer = ": MODE " + w_chanel->name + " +t";
+		w_chanel->m_t = 1;
+	}
+	if (type[0] == '-'){
+		buffer = ": MODE " + w_chanel->name + " -t";
+		w_chanel->m_t = 0;
+	}
+	send_mode_all(*w_chanel, buffer);
+}
+
+static void modif_i(std::string type, Chanel *w_chanel){
+		std::string buffer;
+	if (type[0] == '+'){
+		buffer = ": MODE " + w_chanel->name + " +i";
+		w_chanel->m_i = 1;
+	}
+	if (type[0] == '-'){
+		buffer = ": MODE " + w_chanel->name + " -i";
+		w_chanel->m_i = 0;
+	}
+	send_mode_all(*w_chanel, buffer);
+}
 
 void	send_mode(client *w_client, Chanel w_chanel) {
 	std::string buffer;
@@ -157,16 +184,10 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 	}
 	switch (type[1]) {
 		case 'i':
-			if (type[0] == '+')
-				w_chanel->m_i = 1;
-			if (type[0] == '-')
-				w_chanel->m_t = 0;
+			modif_i(type, w_chanel);
 		break;
 		case 't':
-			if (type[0] == '+')
-				w_chanel->m_t = 1;
-			if (type[0] == '-')
-				w_chanel->m_t = 0;
+			modif_t(type, w_chanel);
 		break;
 		case 'k':
 			mode_k(type, w_chanel, w_client);
@@ -180,6 +201,8 @@ void	cmd_mode(std::string arg, client *w_client, Server *server) {
 			w_chanel->user_limit_changed = false;
 		break;
 		default:
+			std::string buf = ": 501 " + w_client->nick + " ERR_UMODEUNKNOWNFLAG :Unknown MODE flag\n";
+			send(w_client->fd, buf.c_str(), buf.size(), 0);
 		break;
 	}
 }

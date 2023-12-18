@@ -37,6 +37,7 @@ static	void	set_topic(std::string arg, client *w_client, Chanel *w_chanel) {
 	if (w_chanel->m_t && !is_admin(*w_client, *w_chanel)){
 		std::string buffer = ": 482 " + get_only_name(w_client->nick) + " " + get_only_name(w_chanel->name) + " :You're not channel operator\n";
 		send(w_client->fd, buffer.c_str(), buffer.size(), 0);
+		send_topic(w_client, *w_chanel);
 	}
 	else{
 		w_chanel->topic = get_2arg(arg, w_chanel->name);

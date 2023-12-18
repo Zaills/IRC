@@ -22,6 +22,7 @@ Server::~Server()
 			delete (*it2);
 		it2++;
 	}
+
 }
 
 static void ERR_NOTREGISTERED(client *ptr)
@@ -62,44 +63,33 @@ void Server::get_msgs(int fd_client, char *buf)
 		{
 		case 0:
 			setNick(fd_client, this->_clients, this->_client_msgs, this->_password);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 1:
 			setUser(fd_client, this->_clients, this->_client_msgs, this->_password);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 2:
 			setPass(fd_client, this->_clients, this->_client_msgs, this->_password);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 3:
-			//INVITE
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
+			cmd_invite(this->_client_msgs[fd_client].erase(0, cmd[3].size()), this->_clients[fd_client], this);
 			break;
 		case 4:
 			cmd_topic(this->_client_msgs[fd_client].erase(0, cmd[4].size()), this->_clients[fd_client], this);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 5:
 			cmd_mode(this->_client_msgs[fd_client].erase(0, cmd[5].size()), this->_clients[fd_client], this);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 6:
 			cmd_kick(this->_client_msgs[fd_client].erase(0, cmd[6].size()), this->_clients[fd_client], this);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 7:
 			cmd_join(this->_client_msgs[fd_client].erase(0, cmd[7].size()), this->_clients[fd_client], this);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		case 8:
 			privmsg(fd_client, this->_clients, this->_client_msgs, this->_chanels);
-			this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
-			break;
-		default:
-			this->_client_msgs[fd_client].erase(0,this->_client_msgs[fd_client].find('\n')+1);
 			break;
 		}
+	this->_client_msgs[fd_client].erase(0, this->_client_msgs[fd_client].find('\n')+1);
 	}
 }
 
@@ -161,4 +151,18 @@ std::vector<Chanel *> *Server::get_chanel(){
 
 void	Server::new_chanel(Chanel *chanel){
 	this->_chanels.push_back(chanel);
+}
+
+void	Server::addInvited(std::string key, std::string value) {
+	this->_invited[key].push_back(value);
+}
+
+void	Server::delInvited(std::string key, std::string value) {
+	std::vector<std::string> &v_inv = this->_invited[key];
+	v_inv.erase(std::remove(v_inv.begin(), v_inv.end(), value), v_inv.end());
+}
+
+bool	Server::isInvited(std::string key, std::string value){
+	std::vector<std::string> v_inv = this->_invited[key];
+	return std::find(v_inv.begin(), v_inv.end(), value) != v_inv.end();
 }

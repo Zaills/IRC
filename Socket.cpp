@@ -12,17 +12,17 @@
 
 #include "Socket.hpp"
 
-Socket::Socket() : server(PORT, std::string("temp")){
+Socket::Socket(int port, std::string pass) : server(port, pass){
 	this->opt = 1;
 	this->addrlen = sizeof(address);
 	if ((this->server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 		throw std::runtime_error("socket");
-	if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
+	if (setsockopt(this->server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
 		throw std::runtime_error("setsockopt");
 
 	this->address.sin_family = AF_INET;
 	this->address.sin_addr.s_addr = INADDR_ANY;
-	this->address.sin_port = htons(PORT);
+	this->address.sin_port = htons(port);
 
 	if (bind(this->server_fd, (struct sockaddr*)&this->address, sizeof(this->address)) < 0)
 		throw std::runtime_error("bind");
